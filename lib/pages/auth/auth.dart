@@ -22,6 +22,12 @@ class Authentication extends StatefulWidget {
 class _AuthenticationState extends State<Authentication> {
   bool _isLogin = true;
 
+  void togglePages() {
+    setState(() {
+      _isLogin = !_isLogin;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +74,7 @@ class _AuthenticationState extends State<Authentication> {
                   SingleChildScrollView(
                     child: SizedBox(
                       width: MediaQuery.of(context).size.width * 0.8,
-                      child: _isLogin ? const Login() : const Register() ,
+                      child: _isLogin ? Login(onTap: togglePages,) : Register(onTap: togglePages,) ,
                     ),
                   ),
                 ],

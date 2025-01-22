@@ -1,7 +1,9 @@
 part of 'auth.dart';
 
 class Login extends StatefulWidget {
-  const Login({super.key});
+  final void Function()? onTap;
+
+  const Login({super.key, required this.onTap});
 
   @override
   State<Login> createState() => _LoginState();
@@ -138,20 +140,15 @@ class _LoginState extends State<Login> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    GestureDetector(
-                      onTap: (){},
-                      child: Text(
-                        "Belum punya akun?",
-                        style: TextStyle(
-                          fontSize: size.width * 0.038,
-                          color: whiteColor
-                        ),
+                    Text(
+                      "Belum punya akun?",
+                      style: TextStyle(
+                        fontSize: size.width * 0.038,
+                        color: whiteColor
                       ),
                     ),
-                    GestureDetector(
-                      onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => Register()));
-                      },
+                    InkWell(
+                      onTap: widget.onTap,
                       child: Text(
                         " DAFTAR",
                         style: TextStyle(

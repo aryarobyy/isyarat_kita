@@ -1,7 +1,8 @@
 part of 'auth.dart';
 
 class Register extends StatefulWidget {
-  const Register({super.key});
+  final void Function()? onTap;
+  const Register({super.key, required this.onTap});
 
   @override
   State<Register> createState() => _RegisterState();
@@ -94,14 +95,8 @@ class _RegisterState extends State<Register> {
                   ),
                 ),
                 SizedBox(width: size.width * 0.01),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(context,
-                      MaterialPageRoute(builder:
-                      (context) => Authentication()
-                      )
-                    );
-                  },
+                InkWell(
+                  onTap: widget.onTap,
                   child: Text(
                     "Masuk",
                     style: TextStyle(
