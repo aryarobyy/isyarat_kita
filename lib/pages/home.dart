@@ -17,6 +17,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: true,
@@ -26,12 +27,10 @@ class _HomePageState extends State<HomePage> {
             Positioned.fill(
                 child: Column(
                   children: [
-                    Opacity(
-                      opacity: 0.9,
-                      child: Image.asset(
-                        'assets/images/bg_dbb.png',
-                        fit: BoxFit.cover,
-                      ),
+                    Image.asset(
+                      'assets/images/bg_db.png',
+                      fit: BoxFit.cover,
+                      height: 450,
                     ),
                   ],
                 )
@@ -78,17 +77,143 @@ class _HomePageState extends State<HomePage> {
               left: 0,
               right: 0,
               child: Container(
-                color: whiteColor,
-                height: 300,
-                alignment: Alignment.center,
-                child: Text(
-                  "WWJWJW",
-                  style: TextStyle(
-                    color: primaryColor,
-                    fontSize: 20,
+                height: size.height * 0.52,
+                decoration: BoxDecoration(
+                  color: whiteColor,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
                   ),
                 ),
-              ),
+                child: Stack(
+                  children: [
+                    SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            SizedBox(height: size.height * 0.03),
+                            Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SizedBox(width: size.width * 0.06),
+                                    SizedBox(
+                                      width: size.width * 0.7,
+                                      child: Text(
+                                        "Pelajari Kosa Kata Bahasa Isyarat",
+                                        style: TextStyle(
+                                          color: primaryColor,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Image.asset(
+                                  'assets/images/cube.png',
+                                  height: size.height * 0.19,
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SizedBox(width: size.width * 0.06),
+                                    SizedBox(
+                                      width: size.width * 0.7,
+                                      child: Text(
+                                        "Pelajari Kosa Kata Bahasa Isyarat",
+                                        style: TextStyle(
+                                          color: primaryColor,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Image.asset(
+                                  'assets/images/cube.png',
+                                  height: size.height * 0.19,
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SizedBox(width: size.width * 0.06),
+                                    SizedBox(
+                                      width: size.width * 0.7,
+                                      child: Text(
+                                        "Pelajari Kosa Kata Bahasa Isyarat",
+                                        style: TextStyle(
+                                          color: primaryColor,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Image.asset(
+                                  'assets/images/cube.png',
+                                  height: size.height * 0.19,
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SizedBox(width: size.width * 0.06),
+                                    SizedBox(
+                                      width: size.width * 0.7,
+                                      child: Text(
+                                        "Pelajari Kosa Kata Bahasa Isyarat",
+                                        style: TextStyle(
+                                          color: primaryColor,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Image.asset(
+                                  'assets/images/cube.png',
+                                  height: size.height * 0.19,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: size.height * 0.001,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: SizedBox(
+                          width: 145,
+                          child: Divider(
+                            color: Colors.grey[400],
+                            thickness: 4,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
             ),
           ],
         ),
