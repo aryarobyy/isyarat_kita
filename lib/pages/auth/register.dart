@@ -11,6 +11,37 @@ class _RegisterState extends State<Register> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController1 = TextEditingController();
   final TextEditingController _passwordController2 = TextEditingController();
+  final AuthService _auth = AuthService();
+
+  Future<void> createUser () async{
+    try{
+      if (_emailController.text.isEmpty || _passwordController1.text.isEmpty || _passwordController2.text.isEmpty) {
+        MySnackbar(
+          title: "Failed",
+          text: "Email and password empty",
+          type: "failure",
+        ).show(context);
+        return;
+      }
+      if (_passwordController1.text == _passwordController2.text) {
+        String password = _passwordController1.text;
+        await _auth.registerUser(
+            email: _emailController.text,
+            password: password
+        );
+      } else{
+        MySnackbar(title: "Failed", text: "Password 1 and 2 must same", type: "failure").show(context);
+      }
+
+      MySnackbar(title: "Success", text: "Register success", type:"success").show(context);
+      Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (context) => DashboardPage())
+      );
+
+    } catch(e) {
+      print("Cant create user $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +84,7 @@ class _RegisterState extends State<Register> {
               obscureText: true,
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
                   "Sudah punya akun?",
@@ -64,6 +95,13 @@ class _RegisterState extends State<Register> {
                 ),
                 SizedBox(width: size.width * 0.01),
                 GestureDetector(
+                  onTap: () {
+                    Navigator.push(context,
+                      MaterialPageRoute(builder:
+                      (context) => Authentication()
+                      )
+                    );
+                  },
                   child: Text(
                     "Masuk",
                     style: TextStyle(
@@ -111,7 +149,7 @@ class _RegisterState extends State<Register> {
             Column(
               children: [
                 GestureDetector(
-                  onTap: (){},
+                  onTap: createUser,
                   child: Container(
                     width: size.width * 0.4,
                     height: size.height * 0.06,

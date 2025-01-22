@@ -10,6 +10,25 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final AuthService _auth = AuthService();
+
+  Future<void> loginUser() async{
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      MySnackbar(
+        title: "Failed",
+        text: "Email and password empty",
+        type: "failure",
+      ).show(context);
+      return;
+    }
+    await _auth.loginUser(email: _emailController.text, password: _passwordController.text);
+    MySnackbar(
+      title: "Success",
+      text: "Welcome",
+      type: "success",
+    ).show(context);
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,13 +111,7 @@ class _LoginState extends State<Login> {
             Column(
               children: [
                 GestureDetector(
-                  onTap: (){
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => DashboardPage()
-                      ),
-                    );
-                  },
+                  onTap: loginUser,
                   child: Container(
                     width: size.width * 0.4,
                     height: size.height * 0.06,
@@ -136,7 +149,9 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: (){},
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => Register()));
+                      },
                       child: Text(
                         " DAFTAR",
                         style: TextStyle(

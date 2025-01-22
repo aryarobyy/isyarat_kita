@@ -3,8 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:isyarat_kita/component/auth_button.dart';
 import 'package:isyarat_kita/component/color.dart';
 import 'package:isyarat_kita/component/text_field.dart';
+import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/pages/dashboard.dart';
 import 'package:isyarat_kita/pages/home.dart';
+import 'package:isyarat_kita/sevices/user_service.dart';
+import 'package:isyarat_kita/widget/snackbar.dart';
 
 part 'login.dart';
 part 'register.dart';
