@@ -4,6 +4,7 @@ class UserModel {
   final String image;
   final String name;
   final String username;
+  final DateTime createdAt;
 
   UserModel({
     required this.userId,
@@ -11,6 +12,7 @@ class UserModel {
     required this.image,
     required this.name,
     required this.username,
+    required this.createdAt,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> data, documentId) {
@@ -24,6 +26,9 @@ class UserModel {
       image: data['image'] ?? "",
       name: data['name'] ?? "",
       username: data['username'] ?? "",
+      createdAt: data['createdAt'] != null
+          ? DateTime.parse(data['createdAt'])
+          : DateTime.now(),
     );
   }
 
@@ -34,6 +39,7 @@ class UserModel {
       'image': image,
       'name': name,
       'username': username,
+      'createdAt': createdAt,
     };
   }
 
@@ -50,6 +56,7 @@ class UserModel {
       image: image ?? this.image,
       name: name ?? this.name,
       username: username ?? this.username,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 }
