@@ -16,7 +16,7 @@ class Navbar extends StatelessWidget {
       children: [
         Positioned.fill(
           child: ClipPath(
-            clipper: CustomNavBarClipper(currentIndex),
+            clipper: CustomNavBarClipper(currentIndex: currentIndex),
             child: Container(
               decoration: BoxDecoration(
                 color: primaryColor,
@@ -33,42 +33,80 @@ class Navbar extends StatelessWidget {
           selectedItemColor: secondaryColor,
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: ImageIcon(
-                AssetImage('assets/icons/home.png'),
-                size: 40,
-                color: currentIndex == 0 ? secondaryColor : whiteColor,
+              icon: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color: currentIndex == 0 ? secondaryColor : Colors.transparent,
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    color: currentIndex == 0 ? secondaryColor : Colors.transparent,
+                  ),
+                  child: ImageIcon(
+                    AssetImage('assets/icons/home.png'),
+                    size: 55,
+                    color: whiteColor,
+                  ),
+                ),
               ),
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: ImageIcon(
-                AssetImage('assets/icons/hand.png'),
-                size: 40,
-                color: currentIndex == 1 ? secondaryColor : whiteColor,
+              icon: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color: currentIndex == 1 ? secondaryColor : Colors.transparent,
+                ),
+                child: ImageIcon(
+                  AssetImage('assets/icons/hand.png'),
+                  size: 55,
+                  color: whiteColor,
+                ),
               ),
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: ImageIcon(
-                AssetImage('assets/icons/mid.png'),
-                size: 40,
-                color: currentIndex == 2 ? secondaryColor : primaryColor,
+              icon: Container(
+                width: 55,
+                height: 56,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color: Colors.transparent,
+                ),
+                child: ImageIcon(
+                  AssetImage('assets/icons/mid.png'),
+                  size: 55,
+                  color: currentIndex == 2 ? primaryColor : whiteColor,
+                ),
               ),
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: ImageIcon(
-                AssetImage('assets/icons/msg.png'),
-                size: 40,
-                color: currentIndex == 3 ? secondaryColor : whiteColor,
+              icon: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color: currentIndex == 3 ? secondaryColor : Colors.transparent,
+                ),
+                child: ImageIcon(
+                  AssetImage('assets/icons/msg.png'),
+                  size: 55,
+                  color: whiteColor,
+                ),
               ),
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: ImageIcon(
-                AssetImage('assets/icons/setting.png'),
-                size: 40,
-                color: currentIndex == 4 ? secondaryColor : whiteColor,
+              icon: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color: currentIndex == 4 ? secondaryColor : Colors.transparent,
+                ),
+                child: ImageIcon(
+                  AssetImage('assets/icons/setting.png'),
+                  size: 55,
+                  color: whiteColor,
+                ),
               ),
               label: '',
             ),
@@ -82,21 +120,24 @@ class Navbar extends StatelessWidget {
 class CustomNavBarClipper extends CustomClipper<Path> {
   final int currentIndex;
 
-  CustomNavBarClipper(this.currentIndex);
+  CustomNavBarClipper({required this.currentIndex});
 
   @override
   Path getClip(Size size) {
-    final double itemWidth = size.width / 5;
-    final double centerX = (currentIndex + 0.5) * itemWidth;
-
     Path path = Path();
+
     path.moveTo(0, 0);
-    path.lineTo(centerX - itemWidth * 0.15, 0);
+
+    double curveCenter = size.width * ((2 * currentIndex + 1) / 10);
+    double curveWidth = size.width * 0.27;
+    double curveHeight = 160;
+
+    path.lineTo(curveCenter - curveWidth / 1.9, 0);
 
     path.quadraticBezierTo(
-      centerX,
-      -30,
-      centerX + itemWidth * 0.15,
+      curveCenter,
+      curveHeight,
+      curveCenter + curveWidth / 2,
       0,
     );
 
@@ -109,7 +150,5 @@ class CustomNavBarClipper extends CustomClipper<Path> {
   }
 
   @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) {
-    return true;
-  }
+  bool shouldReclip(CustomClipper<Path> oldClipper) => true;
 }
