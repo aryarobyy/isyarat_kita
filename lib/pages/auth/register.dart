@@ -12,11 +12,19 @@ class _RegisterState extends State<Register> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController1 = TextEditingController();
   final TextEditingController _passwordController2 = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   final AuthService _auth = AuthService();
+  bool isLoading = false;
 
   Future<void> createUser () async{
+    setState(() {
+      isLoading = true;
+    });
     try{
       if (_emailController.text.isEmpty || _passwordController1.text.isEmpty || _passwordController2.text.isEmpty) {
+        setState(() {
+          isLoading = false;
+        });
         MySnackbar(
           title: "Failed",
           text: "Email and password empty",
@@ -27,20 +35,24 @@ class _RegisterState extends State<Register> {
       if (_passwordController1.text == _passwordController2.text) {
         String password = _passwordController1.text;
         await _auth.registerUser(
-            email: _emailController.text,
-            password: password
+          email: _emailController.text.toLowerCase(),
+          password: password,
+          name: _nameController.text,
+        );
+
+        MySnackbar(title: "Success", text: "Register success", type:"success").show(context);
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => DashboardPage())
         );
       } else{
         MySnackbar(title: "Failed", text: "Password 1 and 2 must same", type: "failure").show(context);
       }
-
-      MySnackbar(title: "Success", text: "Register success", type:"success").show(context);
-      Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (context) => DashboardPage())
-      );
-
     } catch(e) {
       print("Cant create user $e");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -61,10 +73,19 @@ class _RegisterState extends State<Register> {
             SizedBox(height: size.height * 0.1),
             MyTextField(
               controller: _emailController,
-              name: "addsasda",
+              name: "Email",
               prefixIcon: Icons.email,
               inputType: TextInputType.emailAddress,
               hintText: "ilham@gmail.com",
+            ),
+            SizedBox(height: size.height * 0.02),
+            MyTextField(
+              controller: _nameController,
+              name: "Nama",
+              prefixIcon: Icons.person,
+              inputType: TextInputType.name,
+              hintText: "ilham",
+              obscureText: false,
             ),
             SizedBox(height: size.height * 0.02),
             MyTextField(
@@ -72,7 +93,7 @@ class _RegisterState extends State<Register> {
               name: "Password",
               prefixIcon: Icons.password,
               inputType: TextInputType.visiblePassword,
-              hintText: "Aku ganteng",
+              hintText: "",
               obscureText: true,
             ),
             SizedBox(height: size.height * 0.02),
@@ -81,7 +102,7 @@ class _RegisterState extends State<Register> {
               name: "Confirm Password",
               prefixIcon: Icons.password,
               inputType: TextInputType.visiblePassword,
-              hintText: "Aku ganteng",
+              hintText: "",
               obscureText: true,
             ),
             Row(
@@ -144,7 +165,7 @@ class _RegisterState extends State<Register> {
             Column(
               children: [
                 GestureDetector(
-                  onTap: createUser,
+                  onTap: isLoading ? null : createUser,
                   child: Container(
                     width: size.width * 0.4,
                     height: size.height * 0.06,
@@ -153,11 +174,15 @@ class _RegisterState extends State<Register> {
                       vertical: size.height * 0.015,
                     ),
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: secondaryColor
+                      borderRadius: BorderRadius.circular(20),
+                      color: isLoading ? Colors.grey : secondaryColor,
                     ),
                     child: Center(
-                      child: Text(
+                      child: isLoading
+                          ? CircularProgressIndicator(
+                        color: whiteColor,
+                      )
+                          : Text(
                         "Daftar",
                         style: TextStyle(
                           fontSize: size.width * 0.04,

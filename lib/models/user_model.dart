@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class UserModel {
   final String userId;
   final String email;
@@ -26,8 +28,8 @@ class UserModel {
       image: data['image'] ?? "",
       name: data['name'] ?? "",
       username: data['username'] ?? "",
-      createdAt: data['createdAt'] != null
-          ? DateTime.parse(data['createdAt'])
+      createdAt: data['createdAt'] is Timestamp
+          ? (data['createdAt'] as Timestamp).toDate()
           : DateTime.now(),
     );
   }
@@ -56,7 +58,7 @@ class UserModel {
       image: image ?? this.image,
       name: name ?? this.name,
       username: username ?? this.username,
-      createdAt: createdAt ?? this.createdAt,
+      createdAt: createdAt,
     );
   }
 }

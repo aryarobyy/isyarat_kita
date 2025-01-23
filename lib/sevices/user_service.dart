@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:isyarat_kita/models/user_model.dart';
 import 'package:uuid/uuid.dart';
 
@@ -9,6 +10,8 @@ const String USER_COLLECTION = "users";
 class AuthService {
   final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final _storage = FlutterSecureStorage();
+
 
   bool isEmailValid (String email) {
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
@@ -23,24 +26,24 @@ class AuthService {
     DateTime? createdAt,
     required String password,
     }) async {
-    if(!isEmailValid(email.trim())) {
-      print("Email is not valid");
+    if (!isEmailValid(email.trim())) {
+      throw Exception("Email is not valid");
     }
 
     final querySnapshot = await _fireStore
         .collection(USER_COLLECTION)
         .where('email', isEqualTo: email)
+        .limit(1)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
-      print("Email already exist");
+      throw Exception("Email already exists");
     }
 
-    await _auth.createUserWithEmailAndPassword(email: email, password: password);
-
-    final String uuid = Uuid().v4();
-
       try {
+        final String uuid = Uuid().v4();
+        await _storage.write(key: 'userId', value: uuid);
+
         UserModel user = UserModel(
           userId: uuid,
           email: email,
@@ -49,13 +52,18 @@ class AuthService {
           username: "",
           createdAt: DateTime.now(),
         );
+        await _auth.createUserWithEmailAndPassword(email: email, password: password);
         await _fireStore
             .collection(USER_COLLECTION)
             .doc(uuid)
             .set(user.toMap());
 
         return user;
+      } on FirebaseAuthException catch (e) {
+        print("FirebaseAuth Error: ${e.message}");
+        throw e;
       } catch (e) {
+        print("General Error: ${e.toString()}");
         throw e;
       }
     }
@@ -73,8 +81,6 @@ class AuthService {
     }
 
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
-
       final querySnapshot = await _fireStore
           .collection(USER_COLLECTION)
           .where('email', isEqualTo: email)
@@ -85,15 +91,34 @@ class AuthService {
       }
 
       final userData = querySnapshot.docs.first.data();
-      final String documentId = querySnapshot.docs.first.id;
+      final documentId = querySnapshot.docs.first.id;
+      final userId = userData['userId'];
 
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      await _storage.write(key: 'userId', value: userId);
       return UserModel.fromMap(userData, documentId);
+    }  on FirebaseAuthException catch (e) {
+      print("FirebaseAuth Error: ${e.message}");
+      throw e;
     } catch (e) {
-      throw Exception("Login failed: ${e.toString()}");
+      print("General Error: ${e.toString()}");
+      throw e;
     }
   }
 
+  Future<UserModel?> getUserById(String userId) async {
+    final docSnapshot = await _fireStore
+        .collection(USER_COLLECTION)
+        .doc(userId)
+        .get();
+    if (docSnapshot.exists) {
+      return UserModel.fromMap(docSnapshot.data()!, userId);
+    }
+    return null;
+  }
+
   Future<void> signOut() async {
+    await _storage.delete(key: 'userId');
     // await NotificationService.dispose();
     await _auth.signOut();
   }

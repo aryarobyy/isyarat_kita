@@ -13,9 +13,16 @@ class _LoginState extends State<Login> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final AuthService _auth = AuthService();
+  bool isLoading = false;
 
   Future<void> loginUser() async{
+    setState(() {
+      isLoading = true;
+    });
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      setState(() {
+        isLoading = false;
+      });
       MySnackbar(
         title: "Failed",
         text: "Email and password empty",
@@ -23,25 +30,35 @@ class _LoginState extends State<Login> {
       ).show(context);
       return;
     }
-    await _auth.loginUser(email: _emailController.text, password: _passwordController.text);
-    MySnackbar(
-      title: "Success",
-      text: "Welcome",
-      type: "success",
-    ).show(context);
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage()));
+    try{
+      await _auth.loginUser(email: _emailController.text.toLowerCase(), password: _passwordController.text.toLowerCase());
+      MySnackbar(
+        title: "Success",
+        text: "Welcome",
+        type: "success",
+      ).show(context);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage()));
+    } catch (e) {
+      MySnackbar(
+        title: "Failed",
+        text: "password or email wrong",
+        type: "failure",
+      ).show(context);
+      print("Error in login");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: size.width * 0.02,
-          vertical: size.height * 0.03,
-        ),
+    return SafeArea(
+      child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -113,7 +130,7 @@ class _LoginState extends State<Login> {
             Column(
               children: [
                 GestureDetector(
-                  onTap: loginUser,
+                  onTap: isLoading ? null : loginUser,
                   child: Container(
                     width: size.width * 0.4,
                     height: size.height * 0.06,
@@ -123,11 +140,15 @@ class _LoginState extends State<Login> {
                     ),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        color: secondaryColor
+                        color:  isLoading ? Colors.grey : secondaryColor
                     ),
-                    child: Center(
-                      child: Text(
-                        "Masuk",
+                    child:Center(
+                      child: isLoading
+                          ? CircularProgressIndicator(
+                        color: whiteColor,
+                      )
+                          : Text(
+                        "Daftar",
                         style: TextStyle(
                           fontSize: size.width * 0.04,
                           color: whiteColor,
