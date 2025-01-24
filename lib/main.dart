@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -43,7 +44,6 @@ class _MyAppState extends State<MyApp> {
     }
     print("UserId: $userId");
   }
-
 
   @override
   Widget build(BuildContext context) {
