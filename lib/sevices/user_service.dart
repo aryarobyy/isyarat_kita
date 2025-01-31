@@ -20,7 +20,7 @@ class AuthService {
 
   Future<UserModel> registerUser ({
     required String email,
-    String? name,
+    required String name,
     String? image,
     String? username,
     DateTime? createdAt,
@@ -48,8 +48,8 @@ class AuthService {
           userId: uuid,
           email: email,
           image: "",
-          name: "",
           username: "",
+          role: "user",
           createdAt: DateTime.now(),
         );
         await _auth.createUserWithEmailAndPassword(email: email, password: password);
@@ -75,7 +75,6 @@ class AuthService {
     if (email.isEmpty || password.isEmpty) {
       throw Exception("Email and password must not be empty.");
     }
-
     if (!isEmailValid(email.trim())) {
       throw Exception("Invalid email format.");
     }
@@ -106,16 +105,37 @@ class AuthService {
     }
   }
 
-  Future<UserModel?> getUserById(String userId) async {
-    final docSnapshot = await _fireStore
+  Stream<UserModel?> getUserById(String userId) {
+    return _fireStore
         .collection(USER_COLLECTION)
         .doc(userId)
-        .get();
-    if (docSnapshot.exists) {
-      return UserModel.fromMap(docSnapshot.data()!, userId);
-    }
-    return null;
+        .snapshots()
+        .map((docSnapshot) {
+      if (docSnapshot.exists) {
+        return UserModel.fromMap(docSnapshot.data()!, userId);
+      }
+      return null;
+    });
   }
+
+  Future<UserModel?> updateUser(String userId, Map<String, dynamic> updatedData) async {
+    await _fireStore
+        .collection(USER_COLLECTION)
+        .doc(userId)
+        .set(updatedData);
+    final DocumentSnapshot userDoc =
+    await _fireStore.collection(USER_COLLECTION).doc(userId).get();
+
+    if (userDoc.exists) {
+      print("Fetched updated user data: ${userDoc.data()}");
+      return UserModel.fromMap(userDoc.data() as Map<String, dynamic>, userId);
+    } else {
+      print("User document not found after update.");
+      throw Exception("Failed to retrieve updated user data");
+    }
+  }
+
+
 
   Future<void> signOut() async {
     await _storage.delete(key: 'userId');

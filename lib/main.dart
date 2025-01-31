@@ -50,8 +50,8 @@ class _MyAppState extends State<MyApp> {
     print("Mainnn: $isLoggedIn");
     return MaterialApp(
       title: 'Flutter Demo',
-      // theme: ThemeData(
-      // ),
+      theme: ThemeData(
+      ),
       home: isLoggedIn ? DashboardPage() : Authentication(),
       debugShowCheckedModeBanner: false,
     );

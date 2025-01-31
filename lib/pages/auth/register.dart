@@ -35,19 +35,25 @@ class _RegisterState extends State<Register> {
       if (_passwordController1.text == _passwordController2.text) {
         String password = _passwordController1.text;
         await _auth.registerUser(
+          name: _nameController.text,
           email: _emailController.text.toLowerCase(),
           password: password,
-          name: _nameController.text,
         );
 
-        MySnackbar(title: "Success", text: "Register success", type:"success").show(context);
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => DashboardPage())
+        );
+        MyPopup.show(
+          context,
+          title: "Akun Berhasil Dibuat!",
+          content: "Silakan masuk untuk melanjutkan.",
+          buttonText: "Lanjut",
         );
       } else{
         MySnackbar(title: "Failed", text: "Password 1 and 2 must same", type: "failure").show(context);
       }
     } catch(e) {
+      MySnackbar(title: "Error", text: e.toString(), type: 'failure').show(context);;
       print("Cant create user $e");
     } finally {
       setState(() {

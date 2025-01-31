@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:isyarat_kita/component/button.dart';
 import 'package:isyarat_kita/component/color.dart';
 import 'package:isyarat_kita/component/navbar.dart';
-import 'package:isyarat_kita/pages/chat.dart';
+import 'package:isyarat_kita/pages/chat/chat.dart';
 import 'package:isyarat_kita/pages/kamera.dart';
 import 'package:isyarat_kita/pages/kamus.dart';
 import 'package:isyarat_kita/pages/setting.dart';

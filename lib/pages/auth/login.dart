@@ -32,11 +32,12 @@ class _LoginState extends State<Login> {
     }
     try{
       await _auth.loginUser(email: _emailController.text.toLowerCase(), password: _passwordController.text.toLowerCase());
-      MySnackbar(
-        title: "Success",
-        text: "Welcome",
-        type: "success",
-      ).show(context);
+      MyPopup.show(
+        context,
+        title: "Login Berhasil",
+        content: "Silakan masuk untuk melanjutkan.",
+        buttonText: "Masuk",
+      );
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage()));
     } catch (e) {
       MySnackbar(
@@ -148,7 +149,7 @@ class _LoginState extends State<Login> {
                         color: whiteColor,
                       )
                           : Text(
-                        "Daftar",
+                        "Masuk",
                         style: TextStyle(
                           fontSize: size.width * 0.04,
                           color: whiteColor,

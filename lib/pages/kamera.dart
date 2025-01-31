@@ -1,5 +1,4 @@
 import 'package:camera/camera.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -18,53 +17,66 @@ class _KameraPageState extends State<KameraPage> {
   @override
   void initState() {
     super.initState();
-    // requestStoragePermission();
-    _setupCameraController();
+    _initializeCamera();
   }
 
-  Future<void> _setupCameraController() async {
+  Future<void> _initializeCamera() async {
+    bool permissionGranted = await _requestPermissions();
+    if (!permissionGranted) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Izin Diperlukan"),
+          content: const Text("Izin kamera diperlukan untuk menggunakan fitur ini."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     List<CameraDescription> _cameras = await availableCameras();
-    if(_cameras.isNotEmpty){
+    if (_cameras.isNotEmpty) {
       setState(() {
         cameras = _cameras;
         controller = CameraController(
-            _cameras.first,
-            ResolutionPreset.max,
+          _cameras.first,
+          ResolutionPreset.max,
         );
       });
+
       await SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown
+        DeviceOrientation.portraitDown,
       ]);
       await controller?.initialize();
-        setState(() {
-
-        });
+      setState(() {});
     }
   }
 
-
-  void requestStoragePermission() async {
-      var status = await Permission.storage.status;
-      if (!status.isGranted) {
-        await Permission.storage.request();
-      }
-
-      var cameraStatus = await Permission.camera.status;
+  Future<bool> _requestPermissions() async {
+    var cameraStatus = await Permission.camera.status;
+    if (!cameraStatus.isGranted) {
+      cameraStatus = await Permission.camera.request();
       if (!cameraStatus.isGranted) {
-        await Permission.camera.request();
+        return false;
       }
+    }
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _build(),
+      body: _buildCameraView(),
     );
   }
 
-  Widget _build(){
-    print("Controller $controller");
+  Widget _buildCameraView() {
     if (controller == null || controller?.value.isInitialized == false) {
       return const Center(
         child: CircularProgressIndicator(),

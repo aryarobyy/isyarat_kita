@@ -1,35 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:isyarat_kita/component/color.dart';
+import 'package:isyarat_kita/component/popup.dart';
 import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/pages/auth/auth.dart';
 import 'package:isyarat_kita/sevices/user_service.dart';
 import 'package:isyarat_kita/widget/snackbar.dart';
 
 class SettingPage extends StatefulWidget {
-  const SettingPage({super.key});
+  final String userId;
+  const SettingPage({
+    super.key,
+    required this.userId
+  });
 
   @override
   State<SettingPage> createState() => _SettingPageState();
 }
 
 class _SettingPageState extends State<SettingPage> {
-  final _storage = FlutterSecureStorage();
   final AuthService _auth = AuthService();
-  String? _userId;
 
   @override
   void initState() {
     super.initState();
-    // _userInitialize();
-  }
-
-  Future<String?> getUserId() async {
-    final userId = await _storage.read(key: 'userId');
-    setState(() {
-      _userId = userId;
-    });
-    return userId;
   }
 
   @override
@@ -55,10 +49,11 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Widget _build(BuildContext context) {
-    return FutureBuilder<UserModel?>(
-        future: _storage.read(key: 'userId').then((userId) =>
-          userId != null ? _auth.getUserById(userId) : null
-        ),
+    print("UserId: ${widget.userId}");
+    return StreamBuilder<UserModel?>(
+        stream: widget.userId != null && widget.userId!.isNotEmpty
+            ? _auth.getUserById(widget.userId!)
+            : null,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -74,7 +69,7 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
           final user = snapshot.data!;
-          print("User: ${user.email}");
+          print("User: ${user.username}");
           return Column(
             children: [
               Stack(
@@ -98,12 +93,11 @@ class _SettingPageState extends State<SettingPage> {
                               ? AssetImage("assets/images/profile.png")
                               : NetworkImage(user.image),
                           onBackgroundImageError: (exception, stackTrace) {
-                            print('Error loading image: $exception');
                           },
                         ),
                         SizedBox(height: 16),
                         Text(
-                          user.name,
+                          user.username,
                           style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.w600,
@@ -122,7 +116,9 @@ class _SettingPageState extends State<SettingPage> {
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+
+                        },
                         icon: Icon(
                           Icons.edit,
                           color: whiteColor,

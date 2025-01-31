@@ -4,16 +4,16 @@ class UserModel {
   final String userId;
   final String email;
   final String image;
-  final String name;
   final String username;
+  final String role;
   final DateTime createdAt;
 
   UserModel({
     required this.userId,
     required this.email,
     required this.image,
-    required this.name,
     required this.username,
+    required this.role,
     required this.createdAt,
   });
 
@@ -26,8 +26,8 @@ class UserModel {
       userId: data['userId'] ?? documentId,
       email: data['email'] ?? "",
       image: data['image'] ?? "",
-      name: data['name'] ?? "",
       username: data['username'] ?? "",
+      role: data['role'] ?? "",
       createdAt: data['createdAt'] is Timestamp
           ? (data['createdAt'] as Timestamp).toDate()
           : DateTime.now(),
@@ -39,8 +39,8 @@ class UserModel {
       'userId': userId,
       'email': email,
       'image': image,
-      'name': name,
       'username': username,
+      'role': role,
       'createdAt': createdAt,
     };
   }
@@ -49,15 +49,15 @@ class UserModel {
     String? userId,
     String? email,
     String? image,
-    String? name,
     String? username,
+    String? role,
   }) {
     return UserModel(
       userId: userId ?? this.userId,
       email: email ?? this.email,
       image: image ?? this.image,
-      name: name ?? this.name,
       username: username ?? this.username,
+      role: role ?? this.role,
       createdAt: createdAt,
     );
   }
