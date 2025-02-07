@@ -17,13 +17,13 @@ class UserModel {
     required this.createdAt,
   });
 
-  factory UserModel.fromMap(Map<String, dynamic> data, documentId) {
+  factory UserModel.fromMap(Map<String, dynamic> data) {
     if (!data.containsKey('email')) {
       throw ArgumentError('Email is required');
     }
 
     return UserModel(
-      userId: data['userId'] ?? documentId,
+      userId: data['userId'] ?? "",
       email: data['email'] ?? "",
       image: data['image'] ?? "",
       username: data['username'] ?? "",
