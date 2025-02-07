@@ -31,7 +31,7 @@ class _LoginState extends State<Login> {
       return;
     }
     try{
-      await _auth.loginUser(email: _emailController.text.toLowerCase(), password: _passwordController.text.toLowerCase());
+      await UserFetch().loginUser(email: _emailController.text.toLowerCase(), password: _passwordController.text);
       MyPopup.show(
         context,
         title: "Login Berhasil",
@@ -45,7 +45,7 @@ class _LoginState extends State<Login> {
         text: "password or email wrong",
         type: "failure",
       ).show(context);
-      print("Error in login");
+      print("Error in login $e");
     } finally {
       setState(() {
         isLoading = false;

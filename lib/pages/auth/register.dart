@@ -12,7 +12,7 @@ class _RegisterState extends State<Register> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController1 = TextEditingController();
   final TextEditingController _passwordController2 = TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final AuthService _auth = AuthService();
   bool isLoading = false;
 
@@ -20,6 +20,7 @@ class _RegisterState extends State<Register> {
     setState(() {
       isLoading = true;
     });
+
     try{
       if (_emailController.text.isEmpty || _passwordController1.text.isEmpty || _passwordController2.text.isEmpty) {
         setState(() {
@@ -34,11 +35,12 @@ class _RegisterState extends State<Register> {
       }
       if (_passwordController1.text == _passwordController2.text) {
         String password = _passwordController1.text;
-        await _auth.registerUser(
-          name: _nameController.text,
-          email: _emailController.text.toLowerCase(),
+        await UserFetch().registerUser(
+          email : _emailController.text.trim().toLowerCase(),
           password: password,
+          username:  _usernameController.text
         );
+        print("Email: ${_emailController.text}");
 
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => DashboardPage())
@@ -86,11 +88,11 @@ class _RegisterState extends State<Register> {
             ),
             SizedBox(height: size.height * 0.02),
             MyTextField(
-              controller: _nameController,
-              name: "Nama",
+              controller: _usernameController,
+              name: "Username",
               prefixIcon: Icons.person,
               inputType: TextInputType.name,
-              hintText: "ilham",
+              hintText: "ilhamgod14",
               obscureText: false,
             ),
             SizedBox(height: size.height * 0.02),

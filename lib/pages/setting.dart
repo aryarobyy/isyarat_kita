@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:isyarat_kita/component/color.dart';
 import 'package:isyarat_kita/component/popup.dart';
+import 'package:isyarat_kita/fetch/user_fetch.dart';
 import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/pages/auth/auth.dart';
 import 'package:isyarat_kita/sevices/user_service.dart';
@@ -49,10 +50,9 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Widget _build(BuildContext context) {
-    print("UserId: ${widget.userId}");
-    return StreamBuilder<UserModel?>(
-        stream: widget.userId != null && widget.userId!.isNotEmpty
-            ? _auth.getUserById(widget.userId!)
+    return StreamBuilder<UserModel>(
+        stream: widget.userId != null && widget.userId.isNotEmpty
+            ? UserFetch().getUserById(widget.userId)
             : null,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -89,9 +89,9 @@ class _SettingPageState extends State<SettingPage> {
                       children: [
                         CircleAvatar(
                           radius: 70,
-                          backgroundImage: user.image.isEmpty
+                          backgroundImage: user.profilePic.isEmpty
                               ? AssetImage("assets/images/profile.png")
-                              : NetworkImage(user.image),
+                              : NetworkImage(user.profilePic),
                           onBackgroundImageError: (exception, stackTrace) {
                           },
                         ),

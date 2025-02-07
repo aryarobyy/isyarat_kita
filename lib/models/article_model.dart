@@ -1,6 +1,6 @@
 class ArticleModel {
   final String articleId;
-  final String createdBy;
+  final String author;
   final String image;
   final String title;
   final String content;
@@ -9,7 +9,7 @@ class ArticleModel {
 
   ArticleModel({
     required this.articleId,
-    required this.createdBy,
+    required this.author,
     required this.image,
     required this.title,
     required this.content,
@@ -18,7 +18,7 @@ class ArticleModel {
   });
 
   factory ArticleModel.fromMap(Map<String, dynamic> data, String documentId) {
-    final String createdBy = data['createdBy'] ?? '';
+    final String author = data['author'] ?? '';
     final String image = data['image'] ?? '';
     final String title = data['title'] ?? '';
     final String content = data['content'] ?? '';
@@ -27,7 +27,7 @@ class ArticleModel {
 
     return ArticleModel(
       articleId: documentId,
-      createdBy: createdBy,
+      author: author,
       image: image,
       title: title,
       content: content,
@@ -39,7 +39,7 @@ class ArticleModel {
   Map<String, dynamic> toMap() {
     return {
       'articleId': articleId,
-      'createdBy': createdBy,
+      'author': author,
       'image': image,
       'title': title,
       'content': content,

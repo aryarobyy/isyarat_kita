@@ -3,18 +3,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class UserModel {
   final String userId;
   final String email;
-  final String image;
+  final String profilePic;
   final String username;
   final String role;
   final DateTime createdAt;
+  final String name;
 
   UserModel({
     required this.userId,
     required this.email,
-    required this.image,
+    required this.profilePic,
     required this.username,
     required this.role,
     required this.createdAt,
+    required this.name
   });
 
   factory UserModel.fromMap(Map<String, dynamic> data) {
@@ -23,11 +25,12 @@ class UserModel {
     }
 
     return UserModel(
-      userId: data['userId'] ?? "",
+      userId: data['id'] ?? "",
       email: data['email'] ?? "",
-      image: data['image'] ?? "",
+      profilePic: data['profilePic'] ?? "",
       username: data['username'] ?? "",
       role: data['role'] ?? "",
+      name: data['name'] ?? "",
       createdAt: data['createdAt'] is Timestamp
           ? (data['createdAt'] as Timestamp).toDate()
           : DateTime.now(),
@@ -38,9 +41,10 @@ class UserModel {
     return {
       'userId': userId,
       'email': email,
-      'image': image,
+      'profilePic': profilePic,
       'username': username,
       'role': role,
+      'name': name,
       'createdAt': createdAt,
     };
   }
@@ -48,17 +52,19 @@ class UserModel {
   UserModel copyWith({
     String? userId,
     String? email,
-    String? image,
+    String? profilePic,
     String? username,
     String? role,
+    String? name
   }) {
     return UserModel(
       userId: userId ?? this.userId,
       email: email ?? this.email,
-      image: image ?? this.image,
+      profilePic: profilePic ?? this.profilePic,
       username: username ?? this.username,
       role: role ?? this.role,
       createdAt: createdAt,
+      name: name ?? this.name
     );
   }
 }

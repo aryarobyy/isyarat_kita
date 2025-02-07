@@ -47,9 +47,10 @@ class AuthService {
         UserModel user = UserModel(
           userId: uuid,
           email: email,
-          image: "",
+          profilePic: "",
           username: "",
           role: "user",
+          name: '',
           createdAt: DateTime.now(),
         );
         await _auth.createUserWithEmailAndPassword(email: email, password: password);
@@ -90,12 +91,11 @@ class AuthService {
       }
 
       final userData = querySnapshot.docs.first.data();
-      final documentId = querySnapshot.docs.first.id;
       final userId = userData['userId'];
 
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       await _storage.write(key: 'userId', value: userId);
-      return UserModel.fromMap(userData, documentId);
+      return UserModel.fromMap(userData);
     }  on FirebaseAuthException catch (e) {
       print("FirebaseAuth Error: ${e.message}");
       throw e;
@@ -112,7 +112,7 @@ class AuthService {
         .snapshots()
         .map((docSnapshot) {
       if (docSnapshot.exists) {
-        return UserModel.fromMap(docSnapshot.data()!, userId);
+        return UserModel.fromMap(docSnapshot.data()!);
       }
       return null;
     });
@@ -128,7 +128,7 @@ class AuthService {
 
     if (userDoc.exists) {
       print("Fetched updated user data: ${userDoc.data()}");
-      return UserModel.fromMap(userDoc.data() as Map<String, dynamic>, userId);
+      return UserModel.fromMap(userDoc.data() as Map<String, dynamic>);
     } else {
       print("User document not found after update.");
       throw Exception("Failed to retrieve updated user data");

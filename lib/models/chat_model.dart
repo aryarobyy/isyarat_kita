@@ -5,7 +5,6 @@ class CommunityModel {
   final String content;
   final DateTime createdAt;
   final DateTime? updatedAt;
-  final List<String>? members;
 
   CommunityModel({
     required this.comId,
@@ -14,7 +13,6 @@ class CommunityModel {
     required this.content,
     required this.createdAt,
     this.updatedAt,
-    this.members,
   });
 
   factory CommunityModel.fromMap(Map<String, dynamic> data, String documentId) {
@@ -23,7 +21,6 @@ class CommunityModel {
     final String content = data['content'] ?? '';
     final DateTime createdAt = DateTime.now();
     final String updatedAt = data['updatedAt'] ?? '';
-    final String members = data['members'] ?? '';
 
     return CommunityModel(
       comId: documentId,
@@ -32,7 +29,6 @@ class CommunityModel {
       content: content,
       createdAt: createdAt,
       updatedAt: updatedAt != null ? DateTime.parse(data['updatedAt']) : null,
-      members: members  != null ? List<String>.from(data['members']) : null,
     );
   }
 
@@ -44,7 +40,6 @@ class CommunityModel {
       'content': content,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
-      'members': members,
     };
   }
 }
