@@ -1,46 +1,52 @@
 class RoomModel {
-  final String comId;
+  final String roomId;
   final String image;
-  final String createdBy;
+  final String author;
   final String title;
+  final String description;
   final DateTime createdAt;
   final DateTime? updatedAt;
-  final List<String>? members;
+  final List<String> members;
 
   RoomModel({
-    required this.comId,
+    required this.roomId,
     required this.image,
-    required this.createdBy,
+    required this.author,
     required this.title,
+    required this.description,
     required this.createdAt,
     this.updatedAt,
-    this.members,
+    required this.members,
   });
 
-  factory RoomModel.fromMap(Map<String, dynamic> data, String documentId) {
+  factory RoomModel.fromMap(Map<String, dynamic> data) {
+    final String roomId = data['id'] ?? '';
     final String image = data['image'] ?? '';
     final String title = data['title'] ?? '';
-    final String createdBy = data['createdBy'] ?? '';
+    final String description = data['description'] ?? '';
+    final String author = data['authorId'] ?? '';
     final DateTime createdAt = DateTime.now();
     final String updatedAt = data['updatedAt'] ?? '';
-    final String members = data['members'] ?? '';
+    final List<String> members = data['members'] ?? '';
 
     return RoomModel(
-      comId: documentId,
+      roomId: roomId,
       title: title,
       image: image,
-      createdBy: createdBy,
+      author: author,
+      description: description,
       createdAt: createdAt,
       updatedAt: updatedAt != null ? DateTime.parse(data['updatedAt']) : null,
-      members: members  != null ? List<String>.from(data['members']) : null,
+      members: members,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'comId': comId,
+      'roomId': roomId,
       'image': image,
-      'createdBy': createdBy,
+      'author': author,
+      'description': description,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
       'members': members,
