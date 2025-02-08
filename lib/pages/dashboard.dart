@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:isyarat_kita/component/navbar.dart';
-import 'package:isyarat_kita/pages/chat/chat.dart';
+import 'package:isyarat_kita/pages/community.dart';
 import 'package:isyarat_kita/pages/home.dart';
 import 'package:isyarat_kita/pages/kamera.dart';
 import 'package:isyarat_kita/pages/kamus.dart';
@@ -47,7 +47,7 @@ class _DashboardPageState extends State<DashboardPage> {
       const HomePage(),
       const KamusPage(),
       const KameraPage(),
-      const ChatPage(),
+      Community(userId: _userId ?? ""),
       SettingPage(userId: _userId ?? ""),
     ];
 
