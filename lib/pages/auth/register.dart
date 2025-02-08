@@ -13,7 +13,6 @@ class _RegisterState extends State<Register> {
   final TextEditingController _passwordController1 = TextEditingController();
   final TextEditingController _passwordController2 = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
-  final AuthService _auth = AuthService();
   bool isLoading = false;
 
   Future<void> createUser () async{
@@ -35,7 +34,7 @@ class _RegisterState extends State<Register> {
       }
       if (_passwordController1.text == _passwordController2.text) {
         String password = _passwordController1.text;
-        await UserFetch().registerUser(
+        await UserService().registerUser(
           email : _emailController.text.trim().toLowerCase(),
           password: password,
           username:  _usernameController.text

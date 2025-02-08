@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class UserModel {
   final String userId;
   final String email;
@@ -20,10 +18,6 @@ class UserModel {
   });
 
   factory UserModel.fromMap(Map<String, dynamic> data) {
-    if (!data.containsKey('email')) {
-      throw ArgumentError('Email is required');
-    }
-
     return UserModel(
       userId: data['id'] ?? "",
       email: data['email'] ?? "",
@@ -31,9 +25,7 @@ class UserModel {
       username: data['username'] ?? "",
       role: data['role'] ?? "",
       name: data['name'] ?? "",
-      createdAt: data['createdAt'] is Timestamp
-          ? (data['createdAt'] as Timestamp).toDate()
-          : DateTime.now(),
+      createdAt: DateTime.now(),
     );
   }
 
