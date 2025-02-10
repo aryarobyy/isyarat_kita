@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:isyarat_kita/models/chat_model.dart';
 import 'package:isyarat_kita/models/room_model.dart';
 import 'package:isyarat_kita/sevices/chat_service.dart';
 import 'package:isyarat_kita/sevices/room_service.dart';
@@ -69,7 +70,7 @@ class RoomTile extends StatelessWidget {
                   "No chat yet",
                   style: TextStyle(color: Colors.grey, fontSize: 16),
                 )
-                    : StreamBuilder(
+                    : StreamBuilder<List<ChatModel>>(
                   stream: ChatService().getChatByRoomId(roomId),
                   builder: (context, chatSnapshot) {
                     if (chatSnapshot.connectionState ==
@@ -95,10 +96,18 @@ class RoomTile extends StatelessWidget {
                             color: Colors.grey, fontSize: 16),
                       );
                     }
-                    final latestChat =
-                    chatSnapshot.data as Map<String, dynamic>;
+                    final List<ChatModel> chats = chatSnapshot.data!;
+                    ChatModel latestChat;
+                    if (chats.isNotEmpty) {
+                      latestChat = chats.last;
+                    } else {
+                      return const Text(
+                        "No message yet",
+                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      );
+                    }
                     return Text(
-                      latestChat['chat'] ?? "",
+                      latestChat.content ?? "",
                       style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 16,

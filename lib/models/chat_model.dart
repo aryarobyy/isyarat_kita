@@ -5,7 +5,6 @@ class ChatModel {
   final String image;
   final String content;
   final DateTime createdAt;
-  final DateTime? updatedAt;
 
   ChatModel({
     required this.roomId,
@@ -14,7 +13,6 @@ class ChatModel {
     required this.image,
     required this.content,
     required this.createdAt,
-    this.updatedAt,
   });
 
   factory ChatModel.fromMap(Map<String, dynamic> data) {
@@ -23,8 +21,7 @@ class ChatModel {
     final String senderId = data['senderId'] ?? '';
     final String image = data['image'] ?? '';
     final String content = data['content'] ?? '';
-    final DateTime createdAt = DateTime.now();
-    final String updatedAt = data['updatedAt'] ?? '';
+    final DateTime createdAt = DateTime.parse(data['createdAt']);
 
     return ChatModel(
       roomId: roomId,
@@ -33,7 +30,6 @@ class ChatModel {
       image: image,
       content: content,
       createdAt: createdAt,
-      updatedAt: updatedAt != null ? DateTime.parse(data['updatedAt']) : null,
     );
   }
 
@@ -45,7 +41,6 @@ class ChatModel {
       'image': image,
       'content': content,
       'createdAt': createdAt,
-      'updatedAt': updatedAt,
     };
   }
 }
