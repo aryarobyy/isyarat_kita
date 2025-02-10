@@ -104,7 +104,7 @@ class RoomService{
    }
   }
 
-  Stream<RoomModel> getRoomById(String roomId) async* {
+  Future<RoomModel> getRoomById(String roomId) async {
    if (url == null) {
     throw Exception("url is not set in .env");
    }
@@ -113,30 +113,33 @@ class RoomService{
    if (res.statusCode == 200) {
     final Map<String, dynamic> responseData = jsonDecode(res.body);
     final data = responseData['data'];
-    yield RoomModel.fromMap(data);
+    return RoomModel.fromMap(data);
    } else if (res.statusCode == 400) {
     throw Exception("Invalid request: ${res.body}");
    } else {
-    throw Exception("Failed to fetch user: ${res.statusCode}");
+    throw Exception("Failed to fetch room: ${res.statusCode}");
    }
   }
 
-  Future <RoomModel> getRooms() async {
+  Future <List<RoomModel>> getRooms() async {
    if (url == null) {
     throw Exception("url is not set in .env");
    }
    try {
-    final res = await http.put(Uri.parse('$url/'));
+    final res = await http.get(Uri.parse('$url/'));
+    final Map<String, dynamic> response = jsonDecode(res.body);
+
     if (res.statusCode == 200) {
-     final Map<String, dynamic> data = jsonDecode(res.body);
-     return RoomModel.fromMap(data);
+      List<dynamic> roomsData = response['data'];
+      List<RoomModel> rooms = roomsData.map((room) => RoomModel.fromMap(room)).toList();
+      return rooms;
     } else if (res.statusCode == 400) {
      throw Exception("Invalid request: ${res.body}");
     } else {
-     throw Exception("Failed to fetch user: ${res.statusCode}");
+     throw Exception("Failed to fetch room: ${res.statusCode}");
     }
    } catch (e) {
-    throw Exception("Error getting users: $e");
+    throw Exception("Error getting room: $e");
    }
   }
 
@@ -149,10 +152,10 @@ class RoomService{
     if (res.statusCode == 200) {
      return;
     } else {
-     throw Exception("Failed to delete user: ${res.statusCode}");
+     throw Exception("Failed to delete room: ${res.statusCode}");
     }
    } catch (e) {
-    throw Exception("Error getting users: $e");
+    throw Exception("Error getting room: $e");
    }
   }
 

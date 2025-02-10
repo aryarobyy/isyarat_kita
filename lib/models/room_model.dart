@@ -6,7 +6,6 @@ class RoomModel {
   final String description;
   final DateTime createdAt;
   final DateTime? updatedAt;
-  final List<String>? members;
 
   RoomModel({
     required this.roomId,
@@ -16,7 +15,6 @@ class RoomModel {
     required this.description,
     required this.createdAt,
     this.updatedAt,
-    this.members,
   });
 
   factory RoomModel.fromMap(Map<String, dynamic> data) {
@@ -25,9 +23,8 @@ class RoomModel {
     final String title = data['title'] ?? '';
     final String description = data['description'] ?? '';
     final String authorId = data['authorId'] ?? '';
-    final DateTime createdAt = DateTime.now();
-    final String updatedAt = data['updatedAt'] ?? '';
-    final List<String> members = data['members'] ?? '';
+    final DateTime createdAt = DateTime.parse(data['createdAt']);
+    final DateTime? updatedAt = data['updatedAt'] != null ? DateTime.parse(data['updatedAt']) : null;
 
     return RoomModel(
       roomId: roomId,
@@ -37,8 +34,12 @@ class RoomModel {
       description: description,
       createdAt: createdAt,
       updatedAt: updatedAt != null ? DateTime.parse(data['updatedAt']) : null,
-      members: members,
     );
+  }
+
+  @override
+  String toString() {
+    return 'RoomModel(roomId: $roomId, title: $title, image: $image, authorId: $authorId, createdAt: $createdAt)';
   }
 
   Map<String, dynamic> toMap() {
@@ -49,7 +50,6 @@ class RoomModel {
       'description': description,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
-      'members': members,
     };
   }
 }

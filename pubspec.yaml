@@ -31,6 +31,7 @@ dependencies:
   tflite_flutter: ^0.11.0 #untuk sambungin ke model ml
   crypto: ^3.0.6
   path: ^1.8.3
+  chat_bubbles: ^1.6.0
 
 dev_dependencies:
   flutter_test:
