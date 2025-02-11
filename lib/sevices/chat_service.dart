@@ -12,7 +12,7 @@ final url = '$api/room-message';
 
 class ChatService{
 
-  Future<ChatModel> postChat({
+  Future<ChatModel> sendChat({
     required String senderId,
     required String roomId,
     required String content,
@@ -25,16 +25,14 @@ class ChatService{
       throw Exception("API URL is not set in .env");
     }
     print("AuthorId in be: $senderId");
-    final String uuid = const Uuid().v4();
 
     try {
-      final uri = Uri.parse('$url/post');
+      final uri = Uri.parse('$url/');
       final request = http.MultipartRequest('POST', uri);
 
-      request.fields['chatId'] = uuid;
-      request.fields['senderId'] = senderId;
-      request.fields['content'] = content;
-      request.fields['roomId'] = "roomId";
+      request.fields['senderId'] = senderId ?? "";
+      request.fields['content'] = content ?? "";
+      request.fields['roomId'] = roomId;
       request.fields['createdAt'] = DateTime.now().toIso8601String();
 
       if (imageFile != null) {
@@ -47,7 +45,7 @@ class ChatService{
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        if (!data.containsKey('data')) {
+        if (data == null || !data.containsKey('data') || data['data'] == null) {
           throw Exception("Invalid response: missing 'data' field");
         }
         return ChatModel.fromMap(data['data']);
@@ -140,15 +138,17 @@ class ChatService{
     }
   }
 
-  Stream <ChatModel> getChats() async* {
+  Stream <List<ChatModel>> getChats() async* {
     if (url == null) {
       throw Exception("url is not set in .env");
     }
     try {
       final res = await http.put(Uri.parse('$url/'));
+      final Map<String, dynamic> response = jsonDecode(res.body);
       if (res.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(res.body);
-        yield ChatModel.fromMap(data);
+        List<dynamic> chatsData = response['data'];
+        List<ChatModel> chats = chatsData.map((chat) => ChatModel.fromMap(chat)).toList();
+        yield chats;
       } else if (res.statusCode == 400) {
         throw Exception("Invalid request: ${res.body}");
       } else {

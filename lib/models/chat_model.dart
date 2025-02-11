@@ -1,14 +1,14 @@
 class ChatModel {
-  final String roomId;
   final String chatId;
+  final String roomId;
   final String senderId;
   final String image;
   final String content;
   final DateTime createdAt;
 
   ChatModel({
-    required this.roomId,
     required this.chatId,
+    required this.roomId,
     required this.senderId,
     required this.image,
     required this.content,
@@ -16,12 +16,12 @@ class ChatModel {
   });
 
   factory ChatModel.fromMap(Map<String, dynamic> data) {
-    final String roomId = data['id'] ?? '';
-    final String chatId = data['chatId'] ?? '';
+    final String chatId = data['id'] ?? '';
+    final String roomId = data['roomId'] ?? '';
     final String senderId = data['senderId'] ?? '';
     final String image = data['image'] ?? '';
     final String content = data['content'] ?? '';
-    final DateTime createdAt = DateTime.parse(data['createdAt']);
+    final DateTime createdAt =  DateTime.tryParse(data['createdAt'] ?? "") ?? DateTime.now();
 
     return ChatModel(
       roomId: roomId,
