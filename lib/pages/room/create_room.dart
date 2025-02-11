@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:isyarat_kita/component/button.dart';
 import 'package:isyarat_kita/component/text_field.dart';
+import 'package:isyarat_kita/pages/dashboard.dart';
 import 'package:isyarat_kita/sevices/images_service.dart';
 import 'package:isyarat_kita/sevices/room_service.dart';
 import 'package:isyarat_kita/widget/snackbar.dart';
@@ -50,21 +51,23 @@ class _CreateRoomState extends State<CreateRoom> {
       MySnackbar(title: "warning", text: "Judul tidak boleh kosong", type: "warning").show(context);
     }
 
-    try {
-      final res = await RoomService().createRoom(
+      RoomService().createRoom(
           authorId: widget.userId,
           title: title,
-          imageFile: _selectedImage ?? null
+          imageFile: _selectedImage
       );
-      print("Created room: $res");
+      Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => DashboardPage(initialTab: 3,)
+          )
+      );
       MySnackbar(title: "Success", text: "Community telah dibuat", type: "success").show(context);
-    } catch (e) {
-      MySnackbar(title: "Error", text: "Gagal membuat community", type: "failure").show(context);
-    }
+
   }
 
   @override
   Widget build(BuildContext context) {
+    print("Userid ${widget.userId}");
     return Scaffold(
       appBar: AppBar(title: const Text("Create Room")),
       body: Center(

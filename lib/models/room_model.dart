@@ -39,7 +39,7 @@ class RoomModel {
 
   @override
   String toString() {
-    return 'RoomModel(roomId: $roomId, title: $title, image: $image, authorId: $authorId, createdAt: $createdAt)';
+    return 'RoomModel(roomId: $roomId, title: $title, image: $image, description: $description, authorId: $authorId, createdAt: $createdAt)';
   }
 
   Map<String, dynamic> toMap() {

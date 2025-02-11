@@ -26,8 +26,8 @@ class RoomTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<RoomModel>(
-      future: RoomService().getRoomById(roomId),
+    return StreamBuilder<RoomModel>(
+      stream: RoomService().getRoomById(roomId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());

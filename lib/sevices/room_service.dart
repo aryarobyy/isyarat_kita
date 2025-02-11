@@ -22,7 +22,7 @@ class RoomService{
     if (url == null) {
       throw Exception("API URL is not set in .env");
     }
-    print("AuthorId in be: $authorId");
+    print("AuthorId in be: $authorId,  Title: $title");
     final String uuid = const Uuid().v4();
 
     try {
@@ -42,7 +42,6 @@ class RoomService{
 
       final streamedResponse = await request.send();
       final res = await http.Response.fromStream(streamedResponse);
-
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         if (!data.containsKey('data')) {
@@ -58,7 +57,6 @@ class RoomService{
       throw Exception("Error create room: $e");
     }
   }
-
 
   Future<RoomModel> updateRoom(
      Map<String, dynamic> updatedData,
@@ -104,7 +102,7 @@ class RoomService{
    }
   }
 
-  Future<RoomModel> getRoomById(String roomId) async {
+  Stream<RoomModel> getRoomById(String roomId) async* {
    if (url == null) {
     throw Exception("url is not set in .env");
    }
@@ -113,7 +111,7 @@ class RoomService{
    if (res.statusCode == 200) {
     final Map<String, dynamic> responseData = jsonDecode(res.body);
     final data = responseData['data'];
-    return RoomModel.fromMap(data);
+    yield RoomModel.fromMap(data);
    } else if (res.statusCode == 400) {
     throw Exception("Invalid request: ${res.body}");
    } else {
@@ -121,7 +119,7 @@ class RoomService{
    }
   }
 
-  Future <List<RoomModel>> getRooms() async {
+  Stream <List<RoomModel>> getRooms() async* {
    if (url == null) {
     throw Exception("url is not set in .env");
    }
@@ -132,7 +130,7 @@ class RoomService{
     if (res.statusCode == 200) {
       List<dynamic> roomsData = response['data'];
       List<RoomModel> rooms = roomsData.map((room) => RoomModel.fromMap(room)).toList();
-      return rooms;
+      yield rooms;
     } else if (res.statusCode == 400) {
      throw Exception("Invalid request: ${res.body}");
     } else {
