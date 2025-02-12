@@ -1,12 +1,15 @@
 import 'package:chat_bubbles/bubbles/bubble_special_three.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:isyarat_kita/component/color.dart';
 import 'package:isyarat_kita/models/chat_model.dart';
 import 'package:isyarat_kita/models/room_model.dart';
 import 'package:isyarat_kita/sevices/chat_service.dart';
+import 'package:isyarat_kita/sevices/chat_socket.dart';
 import 'package:isyarat_kita/sevices/room_service.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class ChatPage extends StatefulWidget {
   final String roomId;
@@ -22,12 +25,67 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   TextEditingController _chatController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   String? _userId;
+  List<ChatModel> _chats = [];
+  late final IO.Socket _socket;
 
   @override
   void initState() {
     _getUserId();
+    _socket = ChatSocket().socket;
+    _socketInitialize();
+    _scrollController.addListener(() {});
     super.initState();
+  }
+
+  void dispose(){
+    _chatController.dispose();
+    _socket.disconnect();
+    // _socket.dispose();
+    super.dispose();
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.minScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  void _socketInitialize () {
+    if (!_socket.connected) {
+      _socket.connect();
+    };
+
+    try{
+      _socket.onConnect((_) {
+        _socket.emit("joinRoom", widget.roomId);
+      });
+      _socket.on('loadMessages', (data) {
+        setState(() {
+          _chats = (data as List).map((json) => ChatModel.fromMap(json)).toList();
+          _chats.sort((a, b) => b.createdAt.compareTo(a.createdAt)); //cari chat terbaru
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+      });
+      _socket.onDisconnect((_)  {
+        _socket.connect();
+      });
+      // _socket.on('fromServer', (data) {
+      //   setState(() {
+      //     _chats.insert(0, ChatModel.fromMap(data));
+      //     _chats.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      //   });
+      //   WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+      // });
+    } catch (e) {
+      print("Cant send chat: $e");
+    }
+
   }
 
   Future<void> _getUserId() async {
@@ -39,20 +97,15 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _sendChat() async {
-    if (_chatController.text.trim().isEmpty) return;
-    try{
-      final res = await ChatService().sendChat(
-          senderId: _userId ?? "",
-          roomId: widget.roomId,
-          content: _chatController.text.trim()
-      );
-      print("Sending chat $res");
-      _chatController.clear();
-
-    } catch (e){
-      print("Cant send chat $e");
-    }
+  void _sendChat() {
+    if(_chatController.text.trim().isEmpty) return;
+    _socket.emit(
+      'sendMessage', {
+       "senderId" :_userId,
+       "roomId": widget.roomId,
+       "content": _chatController.text.trim(),
+      });
+    _chatController.clear();
   }
 
   @override
@@ -75,54 +128,31 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _bubbleChat(BuildContext context){
-    return StreamBuilder<List<ChatModel>>(
-        stream: ChatService().getChatByRoomId(widget.roomId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Text("Error loading messages: ${snapshot.error}"),
-            );
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: Text("No messages yet"));
-          }
-          final chats = snapshot.data;
-          return ListView.builder(
-            reverse: true,
-            itemCount: chats!.length,
-            itemBuilder: (context, index) {
-              final chat = chats[index];
-              bool isSender = chat.senderId == _userId;
+  Widget _bubbleChat(BuildContext context) {
+    return ListView.builder(
+      controller: _scrollController,
+      itemCount: _chats.length,
+      reverse: true,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      itemBuilder: (context, index) {
+        final chat = _chats[index];
+        final isSender = chat.senderId == _userId;
+        bool isNewest(int index) => index == 0;
 
-              bool isLatest(List messages, int index) {
-                if (index >= messages.length - 1) return true;
-                final currentMsg = messages[index].data() as Map<String, dynamic>;
-                final nextMsg = messages[index + 1].data() as Map<String, dynamic>;
-                return currentMsg['senderId'] != nextMsg['senderId'];
-              }
-              bool isNewest(int index) => index == 0;
-
-                return Column(
-                  children: [
-                    BubbleSpecialThree(
-                      text: chat.content,
-                      color: secondaryColor,
-                      isSender: isSender,
-                      tail: isNewest(index),
-                      textStyle: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16
-                      ),
-                    ),
-                  ],
-                );
-            }
-          );
-        }
+        return Align(
+          alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
+          child: BubbleSpecialThree(
+            text: chat.content,
+            color: isSender ? primaryColor : secondaryColor,
+            tail: isNewest(index),
+            isSender: isSender,
+            textStyle: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -211,7 +241,10 @@ class _ChatPageState extends State<ChatPage> {
           return Row(
             children: [
               InkWell(
-                onTap: () => Navigator.pop(context),
+                onTap: () {
+                  Navigator.pop(context);
+                  super.dispose();
+                  },
                 child: Image.asset("assets/images/back-button.png", width: 60,)
               ),
               SizedBox(width: 5,),
