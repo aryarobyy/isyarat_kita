@@ -39,10 +39,8 @@ class _RegisterState extends State<Register> {
           password: password,
           username:  _usernameController.text
         );
-        print("Email: ${_emailController.text}");
-
         Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => DashboardPage())
+            MaterialPageRoute(builder: (context) => Authentication())
         );
         MyPopup.show(
           context,

@@ -1,14 +1,13 @@
 import 'package:chat_bubbles/bubbles/bubble_special_three.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:isyarat_kita/component/color.dart';
 import 'package:isyarat_kita/models/chat_model.dart';
 import 'package:isyarat_kita/models/room_model.dart';
-import 'package:isyarat_kita/sevices/chat_service.dart';
+import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/sevices/chat_socket.dart';
 import 'package:isyarat_kita/sevices/room_service.dart';
+import 'package:isyarat_kita/sevices/user_service.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class ChatPage extends StatefulWidget {
@@ -23,28 +22,32 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
   TextEditingController _chatController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  String? _userId;
   List<ChatModel> _chats = [];
   late final IO.Socket _socket;
+  UserModel? user;
 
   @override
   void initState() {
-    _getUserId();
+    _getCurrentUser();
     _socket = ChatSocket().socket;
     _socketInitialize();
     _scrollController.addListener(() {});
     super.initState();
   }
 
-  void dispose(){
+  @override
+  void dispose() {
+    _socket.off('loadMessages');
+    _socket.off('newMessage');
+    _socket.off('disconnect');
+
     _chatController.dispose();
     _socket.disconnect();
-    // _socket.dispose();
     super.dispose();
   }
+
 
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
@@ -56,57 +59,91 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _socketInitialize () {
+  void _socketInitialize() {
     if (!_socket.connected) {
       _socket.connect();
-    };
+    }
 
-    try{
+    try {
       _socket.onConnect((_) {
         _socket.emit("joinRoom", widget.roomId);
       });
+
       _socket.on('loadMessages', (data) {
+        if (!mounted) return;
+        print("Chat socket: $data");
         setState(() {
-          _chats = (data as List).map((json) => ChatModel.fromMap(json)).toList();
-          _chats.sort((a, b) => b.createdAt.compareTo(a.createdAt)); //cari chat terbaru
+          _chats = (data as List)
+              .map((json) => ChatModel.fromMap(json))
+              .toList();
+          _chats.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         });
-        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _scrollToBottom();
+        });
       });
-      _socket.onDisconnect((_)  {
+
+      _socket.on('newMessage', (data) {
+        if (!mounted) return;
+        print("Received newMessage data: $data");
+        if (data == null || (data is Map && data.isEmpty)) {
+          print("Empty message data received, triggering reload.");
+          _socket.emit("joinRoom", widget.roomId);
+          return;
+        }
+        setState(() {
+          _chats.insert(0, ChatModel.fromMap(data));
+          _chats.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _scrollToBottom();
+        });
+      });
+
+      _socket.onDisconnect((_) {
+        if (!mounted) return;
         _socket.connect();
       });
-      // _socket.on('fromServer', (data) {
-      //   setState(() {
-      //     _chats.insert(0, ChatModel.fromMap(data));
-      //     _chats.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      //   });
-      //   WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-      // });
     } catch (e) {
-      print("Cant send chat: $e");
+      print("Can't send chat: $e");
     }
-
   }
 
-  Future<void> _getUserId() async {
-    final userId = await _storage.read(key: 'userId');
+
+  Future<UserModel?> _getCurrentUser() async {
+    final userData = await UserService().getCurrentUser();
     if (mounted) {
       setState(() {
-        _userId = userId;
+        user = userData;
       });
     }
+    return userData;
   }
 
   void _sendChat() {
-    if(_chatController.text.trim().isEmpty) return;
-    _socket.emit(
-      'sendMessage', {
-       "senderId" :_userId,
-       "roomId": widget.roomId,
-       "content": _chatController.text.trim(),
-      });
+    final trimmedText = _chatController.text.trim();
+    if (trimmedText.isEmpty) return;
+
+    final messageData = {
+      "senderId": user?.userId,
+      "roomId": widget.roomId,
+      "content": trimmedText,
+      "createdAt": DateTime.now().toIso8601String(),
+    };
+
+    setState(() {
+      _chats.insert(0, ChatModel.fromMap(messageData));
+      _chats.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    });
+
+    _socket.emit('sendMessage', messageData);
     _chatController.clear();
+
+    Future.delayed(Duration(milliseconds: 300), () {
+      _socket.emit("joinRoom", widget.roomId);
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +173,7 @@ class _ChatPageState extends State<ChatPage> {
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       itemBuilder: (context, index) {
         final chat = _chats[index];
-        final isSender = chat.senderId == _userId;
+        final isSender = chat.senderId == user?.userId;
         bool isNewest(int index) => index == 0;
 
         return Align(

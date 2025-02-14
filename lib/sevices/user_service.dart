@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:isyarat_kita/models/user_model.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 final api = dotenv.env['MOBILE_API'];
@@ -16,6 +20,51 @@ class UserService {
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     return emailRegex.hasMatch(email);
   }
+
+  Future<UserModel?> getCurrentUser() async {
+    final userDataString = await _storage.read(key: 'userData');
+
+    if (userDataString == null) {
+      return throw Exception("Userdata undefined");
+    }
+
+    try {
+      final Map<String, dynamic> userMap = jsonDecode(userDataString);
+      final String? profilePicUrl = userMap['profilePic'];
+      final String? userId = userMap['id'];
+      UserModel? newData;
+
+      if (profilePicUrl != null && profilePicUrl.isNotEmpty && !profilePicUrl.startsWith('/')) {
+        try {
+          final http.Response response = await http.get(Uri.parse(profilePicUrl));
+          final dir = await getTemporaryDirectory();
+          final filename = '${dir.path}/Profile${userId}.png';
+          final file = File(filename);
+
+          await file.parent.create(recursive: true);
+          await file.writeAsBytes(response.bodyBytes);
+          newData = UserModel(
+            userId: userMap['id'],
+            email: userMap['email'],
+            profilePic: filename,
+            username: userMap['username'],
+            role: userMap['role'],
+            createdAt: DateTime.parse(userMap['createdAt']),
+          );
+          await _storage.write(key: 'userData', value: jsonEncode(newData.toMap()));
+        } on PlatformException catch (error) {
+          print("Image download error: $error");
+        } catch (e) {
+          print("Error during image download and saving: $e");
+        }
+      }
+      return newData;
+    } catch (e) {
+      print("Error decoding user data: $e");
+      return null;
+    }
+  }
+
 
   Future<UserModel> registerUser({
     required String email,
@@ -40,7 +89,6 @@ class UserService {
         profilePic: "",
         username: username,
         role: 'USER',
-        name: 'ILHAM',
         createdAt: DateTime.now(),
       );
 
@@ -55,7 +103,6 @@ class UserService {
           'password': password,
           'image': user.profilePic,
           'username': user.username,
-          'name': user.name,
           'role': user.role,
           'createdAt': user.createdAt.toIso8601String(),
         }),
@@ -110,7 +157,8 @@ class UserService {
         if (!userData.containsKey('id')) {
           throw Exception("Invalid response: missing 'userId' field");
         }
-        await _storage.write(key: 'userId', value: userData['id']);
+        await _storage.write(key: 'userData', value: jsonEncode(userData));
+        await _storage.write(key: 'token', value: responseData['token']);
         return UserModel.fromMap(userData);
       } else {
         throw Exception('Failed to log in: ${responseData['message'] ?? res.body}');
@@ -183,15 +231,19 @@ class UserService {
   }
 
 
-  Future <UserModel> getUsers() async {
+  Future <List<UserModel>> getUsers() async {
     if (url == null) {
       throw Exception("url is not set in .env");
     }
     try {
-      final res = await http.put(Uri.parse('$url/'));
+      final res = await http.get(Uri.parse('$url/'));
+      final Map<String, dynamic> response = jsonDecode(res.body);
       if (res.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(res.body);
-        return UserModel.fromMap(data);
+        List<dynamic> roomsData = response['data'];
+        print("Rooms data: ${roomsData}");
+        List<UserModel> rooms = roomsData.map((room) => UserModel.fromMap(room)).toList();
+        print("Fetched Rooms: $rooms");
+        return rooms;
       } else if (res.statusCode == 400) {
         throw Exception("Invalid request: ${res.body}");
       } else {
@@ -219,7 +271,21 @@ class UserService {
   }
 
   Future<void> signOut() async {
-    await _storage.delete(key: 'userId');
+    final userData = await getCurrentUser();
+    final userId = userData?.userId ?? "";
+
+    final dir = await getTemporaryDirectory();
+    final filename = '${dir.path}/Profile${userId}.png';
+    final file = File(filename);
+
+    if (await file.exists()) {
+      await file.delete();
+      print("Image deleted successfully.");
+    } else {
+      print("Image file not found at $filename");
+    }
+    await _storage.delete(key: 'userData');
+    await _storage.delete(key: 'token');
     // await _auth.signOut();
   }
 }

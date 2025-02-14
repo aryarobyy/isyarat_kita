@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:isyarat_kita/component/color.dart';
@@ -9,15 +10,15 @@ import 'package:isyarat_kita/sevices/user_service.dart';
 import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/pages/auth/auth.dart';
 import 'package:isyarat_kita/sevices/images_service.dart';
-import 'package:isyarat_kita/sevices/user_service.dart';
 import 'package:isyarat_kita/widget/snackbar.dart';
 import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 
 class SettingPage extends StatefulWidget {
-  final String userId;
-  const SettingPage({
+  UserModel? userData;
+  SettingPage({
     super.key,
-    required this.userId
+    required this.userData
   });
 
   @override
@@ -25,7 +26,7 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  late UserModel userStream;
+  final _storage = FlutterSecureStorage();
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   void changeProfile() async {
+    final user = widget.userData!;
     try {
       File? imageFile = await ImageService().pickImage();
       if (imageFile == null) return;
@@ -41,24 +43,33 @@ class _SettingPageState extends State<SettingPage> {
 
       String fileName = path.basename(imageFile.path);
 
-      if (userStream.email == null || userStream.email!.isEmpty) {
+      if (user.email == null || user.email!.isEmpty) {
         throw Exception("Email is missing or invalid");
       }
 
       Map<String, dynamic> userData = {
         "data" : {
-          "email": userStream.email,
-          "username": userStream.username,
-          "profilePic": userStream.profilePic,
-          "role": userStream.role,
-          "name": userStream.name
+          "email": user.email,
+          "username": user.username,
+          "profilePic": user.profilePic,
+          "role": user.role,
         }
       };
 
-      print("Debug - Payload: ${jsonEncode(userData)}");
+      await UserService().updateUser(userData, widget.userData!.userId, imageFile: imageFile);
+      final dir = await getTemporaryDirectory();
+      final newFileName = '${dir.path}/Profile${user.userId}.png';
 
-      await UserService().updateUser(userData, widget.userId, imageFile: imageFile);
-      print("Successfully uploaded image");
+      UserModel newData = UserModel(
+          userId: user.userId,
+          email: user.email,
+          profilePic: newFileName,
+          username: user.username,
+          role: user.role,
+          createdAt: user.createdAt,
+      );
+
+      await _storage.write(key: 'userData', value: jsonEncode(newData.toMap()));
     } catch (e) {
       print("Error uploading image: $e");
     }
@@ -87,86 +98,66 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Widget _build(BuildContext context) {
-    return StreamBuilder<UserModel>(
-        stream: widget.userId != null && widget.userId.isNotEmpty
-            ? UserService().getUserById(widget.userId)
-            : null,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          if (snapshot.hasError || !snapshot.hasData) {
-            return Center(
-              child: Text(
-                "Unable to load user information",
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+    final user = widget.userData!;
+    return Column(
+      children: [
+        Stack(
+          children: [
+            Positioned(
+              child: Image.asset(
+                "assets/images/bg_profile.png",
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: 400,
               ),
-            );
-          }
-          final user = snapshot.data!;
-          userStream = user;
-          return Column(
-            children: [
-              Stack(
+            ),
+            Positioned(
+              top: 60,
+              left: (MediaQuery.of(context).size.width - 140) / 2,
+              child: Column(
                 children: [
-                  Positioned(
-                    child: Image.asset(
-                      "assets/images/bg_profile.png",
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: 400,
-                    ),
+                  CircleAvatar(
+                    radius: 70,
+                    backgroundImage: user.profilePic.isEmpty
+                        ? AssetImage("assets/images/profile.png")
+                        : FileImage(File(user.profilePic)) as ImageProvider,
+                    onBackgroundImageError: (exception, stackTrace) {
+
+                    },
                   ),
-                  Positioned(
-                    top: 60,
-                    left: (MediaQuery.of(context).size.width - 140) / 2,
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          radius: 70,
-                          backgroundImage: user.profilePic.isEmpty
-                              ? AssetImage("assets/images/profile.png")
-                              : NetworkImage(user.profilePic),
-                          onBackgroundImageError: (exception, stackTrace) {
-                          },
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          user.username,
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.w600,
-                            color: whiteColor
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                    top: 160,
-                    right: (MediaQuery.of(context).size.width - 280) / 2 + 60,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: primaryColor,
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: IconButton(
-                        onPressed: changeProfile,
-                        icon: Icon(
-                          Icons.edit,
-                          color: whiteColor,
-                          size: 26,
-                        ),
-                      ),
+                  SizedBox(height: 16),
+                  Text(
+                    user.username,
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w600,
+                      color: whiteColor
                     ),
                   ),
                 ],
               ),
-            ],
-          );
-        }
+            ),
+            Positioned(
+              top: 160,
+              right: (MediaQuery.of(context).size.width - 280) / 2 + 60,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: primaryColor,
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: IconButton(
+                  onPressed: changeProfile,
+                  icon: Icon(
+                    Icons.edit,
+                    color: whiteColor,
+                    size: 26,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

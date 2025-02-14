@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:isyarat_kita/component/color.dart';
 import 'package:isyarat_kita/models/room_model.dart';
+import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/pages/room/chat.dart';
 import 'package:isyarat_kita/pages/room/create_room.dart';
 import 'package:isyarat_kita/sevices/room_service.dart';
 import 'package:isyarat_kita/widget/room_tile.dart';
 
 class Community extends StatefulWidget {
-  final String userId;
-  const Community({super.key, required this.userId});
+  UserModel? userData;
+  Community({super.key, required this.userData});
 
   @override
   State<Community> createState() => _CommunityState();
@@ -17,7 +18,12 @@ class Community extends StatefulWidget {
 class _CommunityState extends State<Community> {
   @override
   Widget build(BuildContext context) {
+    final userId = widget.userData?.userId ?? "";
+    if(userId.isEmpty){
+      print("UserId kosong");
+    }
     return Scaffold(
+      backgroundColor: primaryColor,
       body: Column(
         children: [
           _buildHeader(context),
@@ -33,7 +39,7 @@ class _CommunityState extends State<Community> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => CreateRoom(userId: widget.userId),
+                          builder: (context) => CreateRoom(userId: userId),
                         ),
                       );
                     },
@@ -102,7 +108,6 @@ class _CommunityState extends State<Community> {
                       ),
                     ),
                   ),
-
                   const SizedBox(width: 20),
                   GestureDetector(
                     onTap: () {
@@ -141,40 +146,49 @@ class _CommunityState extends State<Community> {
     );
   }
 
-
   Widget _buildRoomDisplay(BuildContext context) {
-    return StreamBuilder<List<RoomModel>>(
-      stream: RoomService().getRooms(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(child: Text("Error: ${snapshot.error}"));
-        }
-        if (!snapshot.hasData) {
-          return const Center(child: Text("No rooms available"));
-        }
-        final List<RoomModel> rooms = snapshot.data!;
-        return ListView.builder(
-          padding: EdgeInsets.zero,
-          itemCount: rooms.length,
-          itemBuilder: (context, index){
-            final room = rooms[index];
-              return RoomTile(
-                roomId: room.roomId,
-                onChatTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ChatPage(roomId: room.roomId)
-                      )
-                  );
-                },
-                onProfileTap: () {},
-              );
-          },
-        );
-      },
+    return Container(
+      padding: EdgeInsets.only(top: 20, left: 10),
+      decoration: BoxDecoration(
+        color: whiteColor,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(50),
+          topRight: Radius.circular(50),
+        ),
+      ),
+      child: StreamBuilder<List<RoomModel>>(
+        stream: RoomService().getRooms(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
+          if (!snapshot.hasData) {
+            return const Center(child: Text("No rooms available"));
+          }
+          final List<RoomModel> rooms = snapshot.data!;
+          return ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: rooms.length,
+            itemBuilder: (context, index){
+              final room = rooms[index];
+                return RoomTile(
+                  roomId: room.roomId,
+                  onChatTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ChatPage(roomId: room.roomId)
+                        )
+                    );
+                  },
+                  onProfileTap: () {},
+                );
+            },
+          );
+        },
+      ),
     );
   }
 }

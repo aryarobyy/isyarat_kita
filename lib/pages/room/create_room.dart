@@ -67,7 +67,6 @@ class _CreateRoomState extends State<CreateRoom> {
 
   @override
   Widget build(BuildContext context) {
-    print("Userid ${widget.userId}");
     return Scaffold(
       appBar: AppBar(title: const Text("Create Room")),
       body: Center(

@@ -31,27 +31,23 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
+    WidgetsFlutterBinding.ensureInitialized();
     super.initState();
     _userInitialize();
   }
 
   void _userInitialize() async {
-    final userId = await _storage.read(key: 'userId');
-    if(userId != null){
+    final token = await _storage.read(key: 'token');
+    if (token != null) {
       setState(() {
         isLoggedIn = true;
       });
     }
-    print("UserId: $userId");
   }
 
   @override
   Widget build(BuildContext context) {
-    print("Mainnn: $isLoggedIn");
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-      ),
       home: isLoggedIn ? DashboardPage() : Authentication(),
       debugShowCheckedModeBanner: false,
     );
