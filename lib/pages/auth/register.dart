@@ -39,20 +39,19 @@ class _RegisterState extends State<Register> {
           password: password,
           username:  _usernameController.text
         );
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => Authentication())
-        );
         MyPopup.show(
           context,
           title: "Akun Berhasil Dibuat!",
           content: "Silakan masuk untuk melanjutkan.",
           buttonText: "Lanjut",
         );
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => Authentication())
+        );
       } else{
         MySnackbar(title: "Failed", text: "Password 1 and 2 must same", type: "failure").show(context);
       }
     } catch(e) {
-      MySnackbar(title: "Error", text: e.toString(), type: 'failure').show(context);;
       print("Cant create user $e");
     } finally {
       setState(() {

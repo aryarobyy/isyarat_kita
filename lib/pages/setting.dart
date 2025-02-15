@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:isyarat_kita/component/color.dart';
-import 'package:isyarat_kita/component/popup.dart';
 import 'package:isyarat_kita/sevices/user_service.dart';
 import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/pages/auth/auth.dart';
@@ -65,6 +64,7 @@ class _SettingPageState extends State<SettingPage> {
           email: user.email,
           profilePic: newFileName,
           username: user.username,
+          name: user.name,
           role: user.role,
           createdAt: user.createdAt,
       );
@@ -98,7 +98,11 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Widget _build(BuildContext context) {
-    final user = widget.userData!;
+    final user = widget.userData;
+    if (user == null) {
+      return Center(child: CircularProgressIndicator());
+    }
+
     return Column(
       children: [
         Stack(

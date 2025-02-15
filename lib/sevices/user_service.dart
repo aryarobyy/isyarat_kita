@@ -23,9 +23,10 @@ class UserService {
 
   Future<UserModel?> getCurrentUser() async {
     final userDataString = await _storage.read(key: 'userData');
+    print("User data: $userDataString");
 
     if (userDataString == null) {
-      return throw Exception("Userdata undefined");
+      throw Exception("User data undefined");
     }
 
     try {
@@ -40,7 +41,6 @@ class UserService {
           final dir = await getTemporaryDirectory();
           final filename = '${dir.path}/Profile${userId}.png';
           final file = File(filename);
-
           await file.parent.create(recursive: true);
           await file.writeAsBytes(response.bodyBytes);
           newData = UserModel(
@@ -48,23 +48,38 @@ class UserService {
             email: userMap['email'],
             profilePic: filename,
             username: userMap['username'],
+            name: userMap['name'],
             role: userMap['role'],
             createdAt: DateTime.parse(userMap['createdAt']),
           );
-          await _storage.write(key: 'userData', value: jsonEncode(newData.toMap()));
+          print("newData from download: $newData");
         } on PlatformException catch (error) {
           print("Image download error: $error");
         } catch (e) {
           print("Error during image download and saving: $e");
         }
       }
+
+      if (newData == null) {
+        newData = UserModel(
+          userId: userMap['id'],
+          email: userMap['email'],
+          profilePic: profilePicUrl ?? "",
+          username: userMap['username'],
+          name: userMap['name'],
+          role: userMap['role'],
+          createdAt: DateTime.parse(userMap['createdAt']),
+        );
+        print("newData fallback: $newData");
+      }
+
+      await _storage.write(key: 'userData', value: jsonEncode(newData.toMap()));
       return newData;
     } catch (e) {
       print("Error decoding user data: $e");
       return null;
     }
   }
-
 
   Future<UserModel> registerUser({
     required String email,
@@ -88,6 +103,7 @@ class UserService {
         email: email,
         profilePic: "",
         username: username,
+        name: "ilham",
         role: 'USER',
         createdAt: DateTime.now(),
       );
@@ -103,6 +119,7 @@ class UserService {
           'password': password,
           'image': user.profilePic,
           'username': user.username,
+          'name': user.name,
           'role': user.role,
           'createdAt': user.createdAt.toIso8601String(),
         }),
@@ -122,6 +139,7 @@ class UserService {
         throw Exception("Failed to register user: ${res.statusCode}");
       }
     } catch (e) {
+      print(e);
       throw Exception("Error registering user: $e");
     }
   }

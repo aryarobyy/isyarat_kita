@@ -3,6 +3,7 @@ class UserModel {
   final String email;
   final String profilePic;
   final String username;
+  final String name;
   final String role;
   final DateTime createdAt;
 
@@ -11,6 +12,7 @@ class UserModel {
     required this.email,
     required this.profilePic,
     required this.username,
+    required this.name,
     required this.role,
     required this.createdAt,
   });
@@ -21,8 +23,11 @@ class UserModel {
       email: data['email'] ?? "",
       profilePic: data['profilePic'] ?? "",
       username: data['username'] ?? "",
+      name: data['name'] ?? "",
       role: data['role'] ?? "",
-      createdAt: DateTime.parse(data['createdAt']),
+      createdAt: data['createdAt'] != null
+          ? DateTime.parse(data['createdAt'])
+          : DateTime.now(),
     );
   }
 
@@ -32,6 +37,7 @@ class UserModel {
       'email': email,
       'profilePic': profilePic,
       'username': username,
+      'name': name,
       'role': role,
       'createdAt': createdAt.toIso8601String(),
     };
@@ -42,6 +48,7 @@ class UserModel {
     String? email,
     String? profilePic,
     String? username,
+    String? name,
     String? role,
   }) {
     return UserModel(
@@ -49,6 +56,7 @@ class UserModel {
       email: email ?? this.email,
       profilePic: profilePic ?? this.profilePic,
       username: username ?? this.username,
+      name: name ?? this.name,
       role: role ?? this.role,
       createdAt: createdAt,
     );
