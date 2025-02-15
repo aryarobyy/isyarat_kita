@@ -21,7 +21,7 @@ class UserService {
     return emailRegex.hasMatch(email);
   }
 
-  Future<UserModel?> getCurrentUser() async {
+  Future<void> savingUser() async {
     final userDataString = await _storage.read(key: 'userData');
     print("User data: $userDataString");
 
@@ -33,6 +33,10 @@ class UserService {
       final Map<String, dynamic> userMap = jsonDecode(userDataString);
       final String? profilePicUrl = userMap['profilePic'];
       final String? userId = userMap['id'];
+      print("userId2: ${userMap['id']}");
+      if (userId == null) {
+        throw Exception("User id is missing in stored userData");
+      }
       UserModel? newData;
 
       if (profilePicUrl != null && profilePicUrl.isNotEmpty && !profilePicUrl.startsWith('/')) {
@@ -44,7 +48,7 @@ class UserService {
           await file.parent.create(recursive: true);
           await file.writeAsBytes(response.bodyBytes);
           newData = UserModel(
-            userId: userMap['id'],
+            userId: userId,
             email: userMap['email'],
             profilePic: filename,
             username: userMap['username'],
@@ -62,7 +66,7 @@ class UserService {
 
       if (newData == null) {
         newData = UserModel(
-          userId: userMap['id'],
+          userId: userId,
           email: userMap['email'],
           profilePic: profilePicUrl ?? "",
           username: userMap['username'],
@@ -74,11 +78,19 @@ class UserService {
       }
 
       await _storage.write(key: 'userData', value: jsonEncode(newData.toMap()));
-      return newData;
     } catch (e) {
       print("Error decoding user data: $e");
-      return null;
     }
+  }
+
+
+  Future<UserModel> getCurrentUser() async {
+    final userDataString = await _storage.read(key: 'userData');
+    if (userDataString == null) {
+      throw Exception("User data undefined");
+    }
+    final Map<String, dynamic> userMap = jsonDecode(userDataString);
+    return UserModel.fromMap(userMap);
   }
 
   Future<UserModel> registerUser({
@@ -96,8 +108,6 @@ class UserService {
     final String uuid = const Uuid().v4();
 
     try {
-      await _storage.write(key: 'userId', value: uuid);
-
       UserModel user = UserModel(
         userId: uuid,
         email: email,
@@ -114,7 +124,7 @@ class UserService {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'userId': user.userId,
+          'id': user.userId,
           'email': user.email,
           'password': password,
           'image': user.profilePic,
@@ -131,7 +141,7 @@ class UserService {
         if (!data.containsKey('data')) {
           throw Exception("Invalid response: missing 'data' field");
         }
-
+        await savingUser();
         return UserModel.fromMap(data['data']);
       } else if (res.statusCode == 400) {
         throw Exception("Invalid request: ${res.body}");
@@ -177,6 +187,8 @@ class UserService {
         }
         await _storage.write(key: 'userData', value: jsonEncode(userData));
         await _storage.write(key: 'token', value: responseData['token']);
+
+        await savingUser();
         return UserModel.fromMap(userData);
       } else {
         throw Exception('Failed to log in: ${responseData['message'] ?? res.body}');

@@ -34,6 +34,7 @@ class _SettingPageState extends State<SettingPage> {
 
   void changeProfile() async {
     final user = widget.userData!;
+    print("user: $user");
     try {
       File? imageFile = await ImageService().pickImage();
       if (imageFile == null) return;

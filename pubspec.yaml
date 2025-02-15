@@ -35,6 +35,8 @@ dependencies:
   socket_io_client: ^3.0.2
   cached_network_image: ^3.4.1
   flutter_file_dialog: ^3.0.2
+  dropdown_button2: ^2.3.9
+
 
 dev_dependencies:
   flutter_test:

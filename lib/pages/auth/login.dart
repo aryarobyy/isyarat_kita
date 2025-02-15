@@ -12,7 +12,6 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  // final AuthService _auth = AuthService();
   bool isLoading = false;
 
   Future<void> loginUser() async{
