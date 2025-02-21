@@ -132,7 +132,7 @@ class _CreateRoomState extends State<CreateRoom> {
 
                     const SizedBox(height: 20),
                     MyTextField(
-                      controller: _titleController,
+                      controller: _descController,
                       name: "Deskripsi",
                       inputType: TextInputType.text,
                       maxLine: 5,

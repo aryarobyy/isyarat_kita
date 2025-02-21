@@ -14,6 +14,7 @@ class RoomService{
   Future<RoomModel> createRoom({
     required String authorId,
     required String title,
+    required String description,
     File? imageFile,
   }) async {
     if (authorId.isEmpty) {
@@ -32,7 +33,7 @@ class RoomService{
       request.fields['roomId'] = uuid;
       request.fields['authorId'] = authorId;
       request.fields['title'] = title;
-      request.fields['description'] = "";
+      request.fields['description'] = description;
       request.fields['createdAt'] = DateTime.now().toIso8601String();
 
       if (imageFile != null) {
@@ -153,8 +154,26 @@ class RoomService{
      throw Exception("Failed to delete room: ${res.statusCode}");
     }
    } catch (e) {
-    throw Exception("Error getting room: $e");
+    throw Exception("Error deletting room: $e");
    }
   }
 
+  Future<List<RoomModel>> getLatestRoom()async {
+    if (url == null) {
+      throw Exception("url is not set in .env");
+    }
+    try {
+      final res = await http.get(Uri.parse('$url/latest'));
+      if (res.statusCode == 200) {
+        final Map<String, dynamic> response = jsonDecode(res.body);
+        List<dynamic> roomsData = response['data'];
+        List<RoomModel> rooms = roomsData.map((room) => RoomModel.fromMap(room)).toList();
+        return rooms;
+      }  else {
+        throw Exception("Failed to get latest room: ${res.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error getting room: $e");
+    }
+  }
 }

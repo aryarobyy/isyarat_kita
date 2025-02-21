@@ -44,7 +44,7 @@ class RoomModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'roomId': roomId,
+      'id': roomId,
       'image': image,
       'authorId': authorId,
       'description': description,

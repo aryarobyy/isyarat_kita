@@ -9,6 +9,7 @@ import 'package:isyarat_kita/widget/room_tile.dart';
 
 class Community extends StatefulWidget {
   UserModel? userData;
+
   Community({super.key, required this.userData});
 
   @override
@@ -18,39 +19,13 @@ class Community extends StatefulWidget {
 class _CommunityState extends State<Community> {
   @override
   Widget build(BuildContext context) {
-    final userId = widget.userData?.userId ?? "";
-    if(userId.isEmpty){
-      print("UserId kosong");
-    }
     return Scaffold(
       backgroundColor: primaryColor,
       body: Column(
         children: [
           _buildHeader(context),
           Expanded(
-            child: Stack(
-              children: [
-                _buildRoomDisplay(context),
-                Positioned(
-                  bottom: 15,
-                  right: 15,
-                  child: IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CreateRoom(userId: userId),
-                        ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.add,
-                      size: 40,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            child: _buildRoomDisplay(context),
           ),
         ],
       ),
@@ -65,21 +40,10 @@ class _CommunityState extends State<Community> {
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Column(
             children: [
-              Row(
-                children: [
-                  InkWell(
-                    onTap: () => Navigator.pop(context),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Image.asset(
-                        "assets/images/back-button.png",
-                        width: 24,
-                        height: 24,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Center(
+              Center(
+                child: Stack(
+                  children: [
+                    Center(
                       child: Text(
                         "Komunitas",
                         style: TextStyle(
@@ -89,17 +53,30 @@ class _CommunityState extends State<Community> {
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 24),
-                ],
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  CreateRoom(userId: widget.userData!.userId),
+                            ),
+                          );
+                        },
+                        icon: Icon(Icons.person_add_alt_1),
+                      ),
+                    ),
+                  ],
+                )
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
-                    onTap: () {
-                    },
+                    onTap: () {},
                     child: Text(
                       "Semua",
                       style: TextStyle(
@@ -114,8 +91,8 @@ class _CommunityState extends State<Community> {
                       // TODO: aksi ketika tab "Belum Dibaca" ditekan
                     },
                     child: Container(
-                      padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: whiteColor,
                         borderRadius: BorderRadius.circular(12),
@@ -156,8 +133,8 @@ class _CommunityState extends State<Community> {
           topRight: Radius.circular(50),
         ),
       ),
-      child: StreamBuilder<List<RoomModel>>(
-        stream: RoomService().getRooms(),
+      child: FutureBuilder<List<RoomModel>>(
+        future: RoomService().getLatestRoom(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -168,23 +145,37 @@ class _CommunityState extends State<Community> {
           if (!snapshot.hasData) {
             return const Center(child: Text("No rooms available"));
           }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Text(
+                  "Mohon maaf, komunitas masih kosong",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                ),
+              ),
+            );
+          }
+
           final List<RoomModel> rooms = snapshot.data!;
+
           return ListView.builder(
             padding: EdgeInsets.zero,
             itemCount: rooms.length,
-            itemBuilder: (context, index){
+            itemBuilder: (context, index) {
               final room = rooms[index];
-                return RoomTile(
-                  roomId: room.roomId,
-                  onChatTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ChatPage(roomId: room.roomId)
-                        )
-                    );
-                  },
-                  onProfileTap: () {},
-                );
+              return RoomTile(
+                roomId: room.roomId,
+                onChatTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ChatPage(roomId: room.roomId)));
+                },
+                onProfileTap: () {},
+              );
             },
           );
         },
