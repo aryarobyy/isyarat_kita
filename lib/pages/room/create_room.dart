@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:isyarat_kita/component/button.dart';
+import 'package:isyarat_kita/component/color.dart';
 import 'package:isyarat_kita/component/text_field.dart';
 import 'package:isyarat_kita/pages/dashboard.dart';
 import 'package:isyarat_kita/sevices/images_service.dart';
 import 'package:isyarat_kita/sevices/room_service.dart';
+import 'package:isyarat_kita/widget/header.dart';
 import 'package:isyarat_kita/widget/snackbar.dart';
 import 'package:path/path.dart' as path;
 
@@ -19,6 +21,7 @@ class CreateRoom extends StatefulWidget {
 
 class _CreateRoomState extends State<CreateRoom> {
   final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descController = TextEditingController();
   File? _selectedImage;
 
   @override
@@ -54,7 +57,8 @@ class _CreateRoomState extends State<CreateRoom> {
       RoomService().createRoom(
           authorId: widget.userId,
           title: title,
-          imageFile: _selectedImage
+          imageFile: _selectedImage,
+          description: _descController.text.trim()
       );
       Navigator.push(
           context,
@@ -68,65 +72,91 @@ class _CreateRoomState extends State<CreateRoom> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Create Room")),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Stack(
-                children: [
-                  CircleAvatar(
-                    backgroundImage: _selectedImage != null
-                        ? FileImage(_selectedImage!)
-                        : const AssetImage("assets/images/profile.png")
-                    as ImageProvider,
-                    radius: 70,
-                  ),
-                  Positioned(
-                    bottom: 3,
-                    right: 2,
-                    child: Container(
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[500],
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 4,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                      child: IconButton(
-                        onPressed: handleUploadImage,
-                        icon: Icon(
-                          Icons.camera_alt_outlined,
-                          color: Colors.white,
-                          size: 24,
+      backgroundColor: primaryColor,
+      body: SafeArea(
+        child: Column(
+          children: [
+            MyHeader(title: "Create room"),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 30),
+                    Stack(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: _selectedImage != null
+                              ? FileImage(_selectedImage!)
+                              : const AssetImage("assets/images/profile.png")
+                          as ImageProvider,
+                          radius: 70,
                         ),
-                      ),
+                        Positioned(
+                          bottom: 3,
+                          right: 2,
+                          child: Container(
+                            width: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[500],
+                              shape: BoxShape.circle,
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 4,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                            child: IconButton(
+                              onPressed: handleUploadImage,
+                              icon: const Icon(
+                                Icons.camera_alt_outlined,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+
+                    const SizedBox(height: 50),
+                    MyTextField(
+                      controller: _titleController,
+                      name: "Nama Komunitas",
+                      inputType: TextInputType.text,
+                      textColor: whiteColor,
+                      outlineColor: whiteColor,
+                    ),
+
+                    const SizedBox(height: 20),
+                    MyTextField(
+                      controller: _titleController,
+                      name: "Deskripsi",
+                      inputType: TextInputType.text,
+                      maxLine: 5,
+                      minLine: 5,
+                      textColor: whiteColor,
+                      outlineColor: whiteColor,
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Create Button
+                    MyButton(
+                      onPressed: createRoom,
+                      text: "Create",
+                      width: 400,
+                    ),
+
+                    const SizedBox(height: 30),
+                  ],
+                ),
               ),
-              MyTextField(
-                controller: _titleController,
-                name: "Title",
-                inputType: TextInputType.text,
-              ),
-              const SizedBox(height: 20),
-              MyButton(
-                onPressed: createRoom,
-                text: "Create Community",
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
-
 }
