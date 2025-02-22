@@ -5,13 +5,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:isyarat_kita/component/navbar.dart';
 import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/pages/auth/auth.dart';
-import 'package:isyarat_kita/pages/community.dart';
+import 'package:isyarat_kita/pages/community/community.dart';
 import 'package:isyarat_kita/pages/home.dart';
 import 'package:isyarat_kita/pages/kamera.dart';
 import 'package:isyarat_kita/pages/kamus/kamus.dart';
-import 'package:isyarat_kita/pages/setting.dart';
+import 'package:isyarat_kita/pages/profile/profile.dart';
 import 'package:isyarat_kita/sevices/user_service.dart';
-import 'package:path_provider/path_provider.dart';
 
 class DashboardPage extends StatefulWidget {
   final int initialTab;
@@ -85,7 +84,7 @@ class _DashboardPageState extends State<DashboardPage> {
       KamusPage(userData: _userData),
       const KameraPage(),
       Community(userData: _userData),
-      SettingPage(userData: _userData),
+      ProfilePage(userData: _userData),
     ];
 
     return Scaffold(

@@ -118,7 +118,21 @@ class _HomePageState extends State<HomePage> {
             topLeft: Radius.circular(24.0),
           ),
         ),
-        child: _buildTrending(context)
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(height: 20,),
+              MyBanner(),
+              SizedBox(height: 20,),
+              _buildRecentChat(context),
+              SizedBox(height: 20,),
+              _buildChooseKamus(context),
+              SizedBox(height: 20,),
+              _buildTrending(context),
+              SizedBox(height: 100,),
+            ],
+          ),
+        )
       ),
     );
   }
@@ -148,25 +162,9 @@ class _HomePageState extends State<HomePage> {
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            blurRadius: 10,
-                            spreadRadius: 2,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      // Avatar bulat
-                      child: CircleAvatar(
-                        radius: 30,
-                        backgroundImage: AssetImage("assets/images/profile.png"),
-                      ),
+                    CircleAvatar(
+                      radius: 45,
+                      backgroundImage: AssetImage("assets/images/profile.png"),
                     ),
                     Positioned(
                       top: 0,
@@ -258,7 +256,8 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        Expanded(
+        SizedBox(
+          height: 120,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: 7,
@@ -269,8 +268,6 @@ class _HomePageState extends State<HomePage> {
                   clipBehavior: Clip.none,
                   children: [
                     Container(
-                      width: 120,
-                      height: 120,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         boxShadow: [
@@ -285,9 +282,7 @@ class _HomePageState extends State<HomePage> {
                       // Avatar bulat
                       child: Image.asset(
                         "assets/images/banner1.png",
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.fill,
+                        fit: BoxFit.cover,
                       ),
                     ),
                     Positioned(

@@ -1,11 +1,32 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:isyarat_kita/component/popup.dart';
+import 'package:isyarat_kita/sevices/userRoom_service.dart';
+import 'package:isyarat_kita/widget/user_tile.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:chat_bubbles/bubbles/bubble_special_three.dart';
+import 'package:chat_bubbles/chat_bubbles.dart';
+
+import 'package:isyarat_kita/models/chat_model.dart';
+import 'package:isyarat_kita/sevices/chat_socket.dart';
+import 'package:isyarat_kita/sevices/user_service.dart';
+import 'package:isyarat_kita/component/button.dart';
+import 'package:isyarat_kita/component/text_field.dart';
+import 'package:isyarat_kita/pages/dashboard.dart';
+import 'package:isyarat_kita/sevices/images_service.dart';
+import 'package:isyarat_kita/widget/header.dart';
+import 'package:isyarat_kita/widget/snackbar.dart';
 import 'package:isyarat_kita/component/color.dart';
 import 'package:isyarat_kita/models/room_model.dart';
 import 'package:isyarat_kita/models/user_model.dart';
-import 'package:isyarat_kita/pages/room/chat.dart';
-import 'package:isyarat_kita/pages/room/create_room.dart';
 import 'package:isyarat_kita/sevices/room_service.dart';
 import 'package:isyarat_kita/widget/room_tile.dart';
+
+
+part 'chat.dart';
+part 'create_room.dart';
+part 'community_detail.dart';
 
 class Community extends StatefulWidget {
   UserModel? userData;
@@ -61,7 +82,9 @@ class _CommunityState extends State<Community> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  CreateRoom(userId: widget.userData!.userId),
+                                CreateRoom(
+                                  userData: widget.userData,
+                                ),
                             ),
                           );
                         },
@@ -142,10 +165,6 @@ class _CommunityState extends State<Community> {
           if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
           }
-          if (!snapshot.hasData) {
-            return const Center(child: Text("No rooms available"));
-          }
-
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
               child: Padding(
