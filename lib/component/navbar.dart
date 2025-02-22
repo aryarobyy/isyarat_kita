@@ -13,32 +13,33 @@ class Navbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned.fill(
-            child: Container(color: primaryColor),
-          ),
-          BottomNavigationBar(
-            currentIndex: currentIndex,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            onTap: onTapped,
-            type: BottomNavigationBarType.fixed,
-            iconSize: 0,
-            selectedItemColor: secondaryColor,
-            unselectedItemColor: whiteColor,
-            items: List.generate(5, (index) {
-              String iconPath = 'assets/icons/${_getIconName(index)}.png';
-              return BottomNavigationBarItem(
-                icon: _buildNavItem(index, iconPath),
-                label: '',
-              );
-            }),
-          ),
-        ],
-      ),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned.fill(
+          child: Image.asset(
+            "assets/images/navbar.png",
+            fit: BoxFit.cover,
+          )
+        ),
+        BottomNavigationBar(
+          currentIndex: currentIndex,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          onTap: onTapped,
+          type: BottomNavigationBarType.fixed,
+          iconSize: 0,
+          selectedItemColor: secondaryColor,
+          unselectedItemColor: whiteColor,
+          items: List.generate(5, (index) {
+            String iconPath = 'assets/icons/${_getIconName(index)}.png';
+            return BottomNavigationBarItem(
+              icon: _buildNavItem(index, iconPath),
+              label: '',
+            );
+          }),
+        ),
+      ],
     );
   }
 
@@ -55,10 +56,8 @@ class Navbar extends StatelessWidget {
 
   Widget _buildNavItem(int index, String iconPath) {
     final bool isSelected = (currentIndex == index);
-
-    //container animasinya
     return AnimatedContainer(
-      duration: Duration(milliseconds: 300), //brp lama animasi
+      duration: Duration(milliseconds: 300),
       width: 80,
       height: isSelected ? 30 : 55,
       child: Stack(
@@ -68,8 +67,8 @@ class Navbar extends StatelessWidget {
           if (isSelected)
             AnimatedPositioned(
               duration: Duration(milliseconds: 300),
-              curve: Curves.easeInOut, //jenis animasi
-              top: -40,
+              curve: Curves.easeInOut,
+              top: -38,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -82,7 +81,7 @@ class Navbar extends StatelessWidget {
                       height: 70,
                     ),
                   ),
-                  TweenAnimationBuilder<double>( //animasi masuk
+                  TweenAnimationBuilder<double>(
                     duration: Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
                     tween: Tween(begin: 1.0, end: isSelected ? 1.0 : 0.0),
@@ -90,8 +89,8 @@ class Navbar extends StatelessWidget {
                       return Transform.scale(
                         scale: value,
                         child: Container(
-                          width: 52,
-                          height: 52,
+                          width: index == 2 ? 0 : 52,
+                          height: index == 2 ? 0 : 52,
                           decoration: BoxDecoration(
                             color: secondaryColor,
                             shape: BoxShape.circle,
@@ -106,7 +105,7 @@ class Navbar extends StatelessWidget {
                     child: ImageIcon(
                       AssetImage(iconPath),
                       size: 55,
-                      color: whiteColor,
+                      color: index == 2 ? primaryColor : whiteColor,
                     ),
                   ),
                 ],
@@ -119,7 +118,7 @@ class Navbar extends StatelessWidget {
               child: ImageIcon(
                 AssetImage(iconPath),
                 size: 55,
-                color: whiteColor,
+                color: index == 2 ? primaryColor : whiteColor,
               ),
             ),
         ],
