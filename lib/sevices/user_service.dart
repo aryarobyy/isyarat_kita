@@ -23,7 +23,6 @@ class UserService {
 
   Future<void> savingUser() async {
     final userDataString = await _storage.read(key: 'userData');
-    print("User data: $userDataString");
 
     if (userDataString == null) {
       throw Exception("User data undefined");
@@ -33,7 +32,6 @@ class UserService {
       final Map<String, dynamic> userMap = jsonDecode(userDataString);
       final String? profilePicUrl = userMap['profilePic'];
       final String? userId = userMap['id'];
-      print("userId2: ${userMap['id']}");
       if (userId == null) {
         throw Exception("User id is missing in stored userData");
       }
@@ -51,8 +49,10 @@ class UserService {
             userId: userId,
             email: userMap['email'],
             profilePic: filename,
+            bannerPic: userMap['bannerPic'],
             username: userMap['username'],
             name: userMap['name'],
+            bio: userMap['bio'],
             role: userMap['role'],
             createdAt: DateTime.parse(userMap['createdAt']),
           );
@@ -69,8 +69,10 @@ class UserService {
           userId: userId,
           email: userMap['email'],
           profilePic: profilePicUrl ?? "",
+          bannerPic: userMap['bannerPic'],
           username: userMap['username'],
           name: userMap['name'],
+          bio: userMap['bio'],
           role: userMap['role'],
           createdAt: DateTime.parse(userMap['createdAt']),
         );
@@ -82,7 +84,6 @@ class UserService {
       print("Error decoding user data: $e");
     }
   }
-
 
   Future<UserModel> getCurrentUser() async {
     final userDataString = await _storage.read(key: 'userData');
@@ -112,8 +113,10 @@ class UserService {
         userId: uuid,
         email: email,
         profilePic: "",
+        bannerPic: "",
         username: username,
-        name: "ilham",
+        name: "",
+        bio: "",
         role: 'USER',
         createdAt: DateTime.now(),
       );
@@ -198,7 +201,7 @@ class UserService {
     }
   }
 
-  Stream<UserModel> getUserById(String userId) async* {
+  Future<UserModel> getUserById(String userId) async {
     if (url == null) {
       throw Exception("url is not set in .env");
     }
@@ -207,7 +210,7 @@ class UserService {
     if (res.statusCode == 200) {
       final Map<String, dynamic> responseData = jsonDecode(res.body);
       final data = responseData['data'];
-      yield UserModel.fromMap(data);
+      return UserModel.fromMap(data);
     } else if (res.statusCode == 400) {
       throw Exception("Invalid request: ${res.body}");
     } else {
@@ -269,11 +272,9 @@ class UserService {
       final res = await http.get(Uri.parse('$url/'));
       final Map<String, dynamic> response = jsonDecode(res.body);
       if (res.statusCode == 200) {
-        List<dynamic> roomsData = response['data'];
-        print("Rooms data: ${roomsData}");
-        List<UserModel> rooms = roomsData.map((room) => UserModel.fromMap(room)).toList();
-        print("Fetched Rooms: $rooms");
-        return rooms;
+        List<dynamic> usersData = response['data'];
+        List<UserModel> users = usersData.map((user) => UserModel.fromMap(user)).toList();
+        return users;
       } else if (res.statusCode == 400) {
         throw Exception("Invalid request: ${res.body}");
       } else {
@@ -317,5 +318,40 @@ class UserService {
     await _storage.delete(key: 'userData');
     await _storage.delete(key: 'token');
     // await _auth.signOut();
+  }
+
+  Future<List<UserModel>> getUserByUsername(String username) async {
+    if (url == null) {
+      throw Exception("url is not set in .env");
+    }
+    final res = await http.get(Uri.parse('$url/username/$username'));
+    final Map<String, dynamic> responseData = jsonDecode(res.body);
+
+    if (res.statusCode == 200) {
+      List<dynamic> usersData = responseData['data'];
+      List<UserModel> users = usersData.map((user) => UserModel.fromMap(user)).toList();
+      return users;
+    } else if (res.statusCode == 400) {
+      throw Exception("Invalid request: ${res.body}");
+    } else {
+      throw Exception("Failed to fetch user: ${res.statusCode}");
+    }
+  }
+
+  Future<UserModel> getUserByEmail(String email) async {
+    if (url == null) {
+      throw Exception("url is not set in .env");
+    }
+    final res = await http.get(Uri.parse('$url/email/$email'));
+
+    if (res.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(res.body);
+      final data = responseData['data'];
+      return UserModel.fromMap(data);
+    } else if (res.statusCode == 400) {
+      throw Exception("Invalid request: ${res.body}");
+    } else {
+      throw Exception("Failed to fetch user: ${res.statusCode}");
+    }
   }
 }

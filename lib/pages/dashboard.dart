@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_middleware/flutter_middleware.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:isyarat_kita/component/navbar.dart';
+import 'package:isyarat_kita/middleware/user_middleware.dart';
 import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/pages/auth/auth.dart';
 import 'package:isyarat_kita/pages/community/community.dart';
@@ -11,6 +13,7 @@ import 'package:isyarat_kita/pages/kamera.dart';
 import 'package:isyarat_kita/pages/kamus/kamus.dart';
 import 'package:isyarat_kita/pages/profile/profile.dart';
 import 'package:isyarat_kita/sevices/user_service.dart';
+import 'package:isyarat_kita/widget/snackbar.dart';
 
 class DashboardPage extends StatefulWidget {
   final int initialTab;
@@ -28,37 +31,58 @@ class _DashboardPageState extends State<DashboardPage> {
   bool _isLoading = true;
 
   @override
-  void initState() {
+  void initState()  {
     super.initState();
+    _tokenChecking();
     _currentIndex = widget.initialTab;
     _getCurrentUser();
   }
 
-  Future<void> _getCurrentUser() async {
-    final token = await _storage.read(key: 'token');
+  Future<bool> _tokenChecking() async {
+    try {
+      final token = await _storage.read(key: "token") ?? "";
+      MyMiddleware middleware = MyMiddleware();
 
-    if (token == null) {
+      final response = await middleware.verifyToken(token);
+      if(response == false){
+        await UserService().signOut();
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => Authentication())
+        );
+      }
+      return response;
+    } catch(e) {
+      print(e);
+      return false;
+    }
+  }
+
+  Future<void> _getCurrentUser() async {
+    try {
+      final token = await _storage.read(key: "token") ?? "";
+      if (token.isEmpty) {
+        if (mounted) {
+          setState(() {
+            isLoggedin = false;
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+      final userData = await UserService().getCurrentUser();
       if (mounted) {
         setState(() {
-          isLoggedin = false;
+          isLoggedin = userData != null;
+          if (isLoggedin) {
+            _userData = userData;
+          }
           _isLoading = false;
         });
       }
-      return;
+    } catch(e) {
+      print(e);
     }
-
-    final userData = await UserService().getCurrentUser();
-
-    if (mounted) {
-      setState(() {
-        isLoggedin = userData != null;
-        if (isLoggedin) {
-          _userData = userData;
-        }
-        _isLoading = false;
-      });
-    }
-    print("Userdatas: ${isLoggedin ? _userData.userId : 'No User'}");
   }
 
   void _onTapped(int index) {
@@ -66,7 +90,6 @@ class _DashboardPageState extends State<DashboardPage> {
       _currentIndex = index;
     });
   }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
