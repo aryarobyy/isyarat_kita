@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:isyarat_kita/models/user_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:image/image.dart' as img;
 
 final api = dotenv.env['MOBILE_API'];
 final url = '$api/user';
@@ -38,52 +36,87 @@ class UserService {
         throw Exception("User id is missing in stored userData");
       }
 
-      // Create a copy of the original user data
       Map<String, dynamic> updatedUserData = Map<String, dynamic>.from(userMap);
 
-      // Handle profile pic if it's a URL
-      if (profilePicUrl != null && profilePicUrl.isNotEmpty && profilePicUrl.startsWith('http')) {
+      if (profilePicUrl != null && profilePicUrl.isNotEmpty &&
+          (profilePicUrl.startsWith('http://') || profilePicUrl.startsWith('https://'))) {
         try {
+          print("Downloading profile pic from: $profilePicUrl");
           final http.Response response = await http.get(Uri.parse(profilePicUrl));
-          final dir = await getTemporaryDirectory();
-          final profileDir = Directory('${dir.path}/Profile');
-          if (!await profileDir.exists()) {
-            await profileDir.create(recursive: true);
-          }
-          final filename = '${profileDir.path}/${userId}.png';
-          final file = File(filename);
-          await file.writeAsBytes(response.bodyBytes);
-          updatedUserData['profilePic'] = filename;
-          print("Downloaded profile pic to: $filename");
-        } catch (e) {
-          print("Error during profile image download and saving: $e");
-        }
-      }
 
-      if (bannerPicUrl != null && bannerPicUrl.isNotEmpty && bannerPicUrl.startsWith('http')) {
-        try {
-          print("Downloading banner from: $bannerPicUrl");
-          final http.Response response = await http.get(Uri.parse(bannerPicUrl));
           if (response.statusCode == 200) {
-            final dir = await getTemporaryDirectory();
-            final bannerDir = Directory('${dir.path}/Banner');
-            if (!await bannerDir.exists()) {
-              await bannerDir.create(recursive: true);
+            final dir = await getApplicationDocumentsDirectory();
+            final profileDir = Directory('${dir.path}/Profile');
+            if (!await profileDir.exists()) {
+              await profileDir.create(recursive: true);
             }
-            final filename = '${bannerDir.path}/${userId}.png';
-            final file = File(filename);
-            await file.writeAsBytes(response.bodyBytes);
-            updatedUserData['bannerPic'] = filename;
-            print("Downloaded banner pic to: $filename");
+
+            final originalImage = img.decodeImage(response.bodyBytes);
+
+            if (originalImage != null) {
+              final filename = '${profileDir.path}/$userId.png';
+              final file = File(filename);
+
+              final pngBytes = img.encodePng(originalImage);
+              await file.writeAsBytes(pngBytes);
+
+              if (await file.exists()) {
+                updatedUserData['profilePic'] = filename;
+                print("Profile picture saved to $filename");
+              } else {
+                print("Failed to write converted PNG file");
+              }
+            } else {
+              print("Failed to decode the original image");
+            }
           } else {
-            print("Failed to download banner: ${response.statusCode}");
+            print("Failed to download profile pic: ${response.statusCode}");
           }
         } catch (e) {
-          print("Error during banner image download and saving: $e");
+          print("Error during profile image download and conversion: $e");
           print("Stack trace: ${StackTrace.current}");
         }
       }
 
+      if (bannerPicUrl != null && bannerPicUrl.isNotEmpty &&
+          (bannerPicUrl.startsWith('http://') || bannerPicUrl.startsWith('https://'))) {
+        try {
+          print("Downloading profile pic from: $bannerPicUrl");
+          final http.Response response = await http.get(Uri.parse(bannerPicUrl));
+
+          if (response.statusCode == 200) {
+            final dir = await getApplicationDocumentsDirectory();
+            final bannereDir = Directory('${dir.path}/Banner');
+            if (!await bannereDir.exists()) {
+              await bannereDir.create(recursive: true);
+            }
+
+            final originalImage = img.decodeImage(response.bodyBytes);
+
+            if (originalImage != null) {
+              final filename = '${bannereDir.path}/$userId.png';
+              final file = File(filename);
+
+              final pngBytes = img.encodePng(originalImage);
+              await file.writeAsBytes(pngBytes);
+
+              if (await file.exists()) {
+                updatedUserData['bannerPic'] = filename;
+                print("Profile picture saved to $filename");
+              } else {
+                print("Failed to write converted PNG file");
+              }
+            } else {
+              print("Failed to decode the original image");
+            }
+          } else {
+            print("Failed to download profile pic: ${response.statusCode}");
+          }
+        } catch (e) {
+          print("Error during profile image download and conversion: $e");
+          print("Stack trace: ${StackTrace.current}");
+        }
+      }
       final UserModel newData = UserModel(
         userId: userId,
         email: updatedUserData['email'] ?? '',
@@ -99,7 +132,6 @@ class UserService {
       );
 
       await _storage.write(key: 'userData', value: jsonEncode(newData.toMap()));
-      print("User data saved successfully with banner: ${newData.bannerPic}");
     } catch (e) {
       print("Error in savingUser: $e");
       print("Stack trace: ${StackTrace.current}");
@@ -166,7 +198,6 @@ class UserService {
         if (!data.containsKey('data')) {
           throw Exception("Invalid response: missing 'data' field");
         }
-        await savingUser();
         return UserModel.fromMap(data['data']);
       } else if (res.statusCode == 400) {
         throw Exception("Invalid request: ${res.body}");

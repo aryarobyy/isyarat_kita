@@ -67,8 +67,17 @@ class _UpdateProfileState extends State<UpdateProfile> {
 
       await UserService().updateUser(userDataPayload, _user.userId, profileImage: imageFile);
 
-      final dir = await getTemporaryDirectory();
-      final newProfilePath = '${dir.path}/Profile/${_user.userId}.png';
+      final tempDir = await getTemporaryDirectory();
+      final profileDir = Directory('${tempDir.path}/Profile');
+      if (!await profileDir.exists()) {
+        await profileDir.create(recursive: true);
+      }
+      final newProfilePath = '${profileDir.path}/${_user.userId}.png';
+      await imageFile.copy(newProfilePath);
+
+      bool exists = await File(newProfilePath).exists();
+      print("File exists: $exists");
+      print("PP : $newProfilePath");
 
       UserModel newData = UserModel(
         userId: _user.userId,
@@ -109,8 +118,17 @@ class _UpdateProfileState extends State<UpdateProfile> {
 
       await UserService().updateUser(userDataPayload, _user.userId, bannerImage: imageFile);
 
-      final dir = await getTemporaryDirectory();
-      final newBannerPath = '${dir.path}/Banner/${_user.userId}.png';
+      final tempDir = await getTemporaryDirectory();
+      final bannerDir = Directory('${tempDir.path}/Banner');
+      if (!await bannerDir.exists()) {
+        await bannerDir.create(recursive: true);
+      }
+      final newBannerPath = '${bannerDir.path}/${_user.userId}.png';
+      await imageFile.copy(newBannerPath);
+
+      bool exists = await File(newBannerPath).exists();
+      print("File exists: $exists");
+      print("PP : $newBannerPath");
 
       UserModel newData = UserModel(
         userId: _user.userId,
@@ -130,9 +148,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
         _user = newData;
       });
     } catch (e) {
-      print("Error uploading banner image: $e");
+      print("Error uploading profile image: $e");
     }
   }
+
 
   void _changeName() async {
     try {
@@ -225,6 +244,8 @@ class _UpdateProfileState extends State<UpdateProfile> {
   }
 
   Widget _build(BuildContext context) {
+    print("File exists: ${File(_user.profilePic).existsSync()}");
+    print("PP : ${_user.profilePic}");
     return Column(
       children: [
         _buildHeader(context),
@@ -259,7 +280,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           backgroundImage: _user.profilePic.isEmpty
                               ? AssetImage("assets/images/profile.png")
                               : FileImage(File(_user.profilePic)) as ImageProvider,
-                          onBackgroundImageError: (exception, stackTrace) {},
+                          onBackgroundImageError: (exception, stackTrace) {
+                            Image.asset("assets/images/profile.png");
+                          },
                         ),
                       ],
                     ),
@@ -381,7 +404,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
         children: [
           InkWell(
             onTap: () {
-              Navigator.pop(context);
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage(initialTab: 4,)));
             },
             child: Image.asset(
               "assets/images/back-button.png",
