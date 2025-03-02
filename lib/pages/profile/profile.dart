@@ -8,15 +8,14 @@ import 'package:isyarat_kita/component/text.dart';
 import 'package:isyarat_kita/component/text_field_2.dart';
 import 'package:isyarat_kita/pages/auth/auth.dart';
 import 'package:isyarat_kita/pages/dashboard.dart';
+import 'package:isyarat_kita/pages/profile/settings/settings.dart';
 import 'package:isyarat_kita/sevices/user_service.dart';
 import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/sevices/images_service.dart';
 import 'package:isyarat_kita/widget/header.dart';
 import 'package:isyarat_kita/widget/snackbar.dart';
-import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
-part 'setting.dart';
 part 'update_profile.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -38,25 +37,21 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-          SizedBox(height: 40,),
-          ElevatedButton(
-              onPressed: () async{
-                // await _auth.signOut();
-                MySnackbar(title: "Success", text: "Logout success", type: "success").show(context);
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => Authentication())
-                );
-              },
-              child: Text("Sign out"),
-          ),
-          _build(context)
-        ],
-      ),
+  void dispose() {
+    super.dispose();
+  }
+
+  void _handleLogout () async {
+    await UserService().signOut();
+    MySnackbar(title: "Success", text: "Logout success", type: "success").show(context);
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (context) => Authentication())
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _build(context);
   }
 
   Widget _build(BuildContext context) {
@@ -152,7 +147,7 @@ class _ProfilePageState extends State<ProfilePage> {
               height: 1,
             ),
             itemBuilder: (context, index) {
-              final data = _settingData[index] as Map<String, dynamic>;
+              final data = _settingData[index];
               return ListTile(
                 leading: Icon(
                   data["icons"],
@@ -164,7 +159,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   fontSize: 16,
                 ),
                 onTap: () {
-                  // TODO: handle tap
+                  index == 5 ? _handleLogout() :
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => data["tapped"]));
                 },
               );
             },
@@ -175,27 +171,35 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
 
-  final _settingData = [
+  List<Map<String, dynamic>> get _settingData => [
     {
       "icons": Icons.manage_accounts,
-      "content": "Pengaturan Akun"
+      "content": "Pengaturan Akun",
+      "tapped": Settings(userData: widget.userData, initialTab: 0,),
     },
     {
       "icons": Icons.notifications,
-      "content": "Notifikasi"
+      "content": "Notifikasi",
+      "tapped": Settings(userData: widget.userData, initialTab: 1),
     },
     {
       "icons": Icons.security,
-      "content": "Privasi dan Keamanan"
+      "content": "Privasi dan Keamanan",
+      "tapped": Settings(userData: widget.userData, initialTab: 2),
     },
     {
       "icons": Icons.language,
-      "content": "Bahasa dan Aksesibilitas"
+      "content": "Bahasa dan Aksesibilitas",
+      "tapped": Settings(userData: widget.userData, initialTab: 3),
     },
     {
       "icons": Icons.headset_mic_rounded,
-      "content": "Bantuan dan Dukungan"
+      "content": "Bantuan dan Dukungan",
+      "tapped": Settings(userData: widget.userData, initialTab: 4),
     },
+    {
+      "icons": Icons.output,
+      "content": "Log Out",
+    }
   ];
-
 }

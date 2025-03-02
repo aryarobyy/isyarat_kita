@@ -13,7 +13,6 @@ import 'package:isyarat_kita/pages/kamera.dart';
 import 'package:isyarat_kita/pages/kamus/kamus.dart';
 import 'package:isyarat_kita/pages/profile/profile.dart';
 import 'package:isyarat_kita/sevices/user_service.dart';
-import 'package:isyarat_kita/widget/snackbar.dart';
 
 class DashboardPage extends StatefulWidget {
   final int initialTab;
@@ -70,7 +69,7 @@ class _DashboardPageState extends State<DashboardPage> {
         }
         return;
       }
-      final userData = await UserService().getCurrentUser();
+      final userData = await UserService().getCurrentUserLocal();
       if (mounted) {
         setState(() {
           isLoggedin = userData != null;

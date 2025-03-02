@@ -138,7 +138,7 @@ class UserService {
     }
   }
 
-  Future<UserModel> getCurrentUser() async {
+  Future<UserModel> getCurrentUserLocal() async {
     final userDataString = await _storage.read(key: 'userData');
     if (userDataString == null) {
       throw Exception("User data undefined");
@@ -367,22 +367,27 @@ class UserService {
   }
 
   Future<void> signOut() async {
-    final userData = await getCurrentUser();
-    final userId = userData?.userId ?? "";
+    final userData = await getCurrentUserLocal();
+    final userId = userData.userId;
 
     final dir = await getTemporaryDirectory();
-    final filename = '${dir.path}/Profile${userId}.png';
-    final file = File(filename);
+    final profileFile = '${dir.path}/Profile/${userId}.png';
+    final bannerFile = '${dir.path}/Banner/${userId}.png';
+    final pp = File(profileFile);
+    final banner = File(bannerFile);
 
-    if (await file.exists()) {
-      await file.delete();
-      print("Image deleted successfully.");
-    } else {
-      print("Image file not found at $filename");
+    if (await pp.exists()) {
+      await pp.delete();
+      print("Image deleted succesfully");
     }
+
+    if (await banner.exists()) {
+      await banner.delete();
+      print("Image deleted succesfully");
+    }
+
     await _storage.delete(key: 'userData');
     await _storage.delete(key: 'token');
-    // await _auth.signOut();
   }
 
   Future<List<UserModel>> getUserByUsername(String username) async {
