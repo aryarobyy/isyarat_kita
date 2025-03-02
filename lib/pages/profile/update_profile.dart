@@ -54,13 +54,14 @@ class _UpdateProfileState extends State<UpdateProfile> {
     try {
       File? imageFile = await ImageService().pickImage();
       if (imageFile == null) return;
+      UserModel currUser = await UserService().getUserById(_user.userId);
 
       Map<String, dynamic> userDataPayload = {
         "data": {
           "email": _user.email,
           "username": _user.username,
           "profilePic": _user.profilePic,
-          "bannerPic": _user.bannerPic,
+          "bannerPic": currUser.bannerPic,
           "role": _user.role,
         }
       };
@@ -105,12 +106,13 @@ class _UpdateProfileState extends State<UpdateProfile> {
     try {
       File? imageFile = await ImageService().pickImage();
       if (imageFile == null) return;
+      UserModel currUser = await UserService().getUserById(_user.userId);
 
       Map<String, dynamic> userDataPayload = {
         "data": {
           "email": _user.email,
           "username": _user.username,
-          "profilePic": _user.profilePic,
+          "profilePic": currUser.profilePic,
           "bannerPic": _user.bannerPic,
           "role": _user.role,
         }
