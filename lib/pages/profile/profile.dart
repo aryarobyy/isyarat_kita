@@ -159,8 +159,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   fontSize: 16,
                 ),
                 onTap: () {
-                  index == 5 ? _handleLogout() :
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => data["tapped"]));
+                  if (index == 3) {
+                    _showLanguagePopup();
+                  } else if (index == 5) {
+                    _handleLogout();
+                  } else {
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => data["tapped"]));
+                  }
                 },
               );
             },
@@ -190,16 +195,133 @@ class _ProfilePageState extends State<ProfilePage> {
     {
       "icons": Icons.language,
       "content": "Bahasa dan Aksesibilitas",
-      "tapped": Settings(userData: widget.userData, initialTab: 3),
+      "tapped": null,
     },
     {
       "icons": Icons.headset_mic_rounded,
       "content": "Bantuan dan Dukungan",
-      "tapped": Settings(userData: widget.userData, initialTab: 4),
+      "tapped": Settings(userData: widget.userData, initialTab: 3),
     },
     {
       "icons": Icons.output,
       "content": "Log Out",
     }
   ];
+
+  void _showLanguagePopup() {
+    int selectedLanguage = 0;
+    final List<String> languages = [
+      'Bahasa Indonesia',
+      'Bahasa Inggris',
+      'Chineese',
+      'Arab',
+    ];
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true, // kalo tap diluar bisa close
+      barrierLabel: '',
+      transitionDuration: Duration(milliseconds: 250),
+      pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return SlideTransition( //animasi
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOut,
+              )),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: primaryColor,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        topRight: Radius.circular(8),
+                      ),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            MyText(
+                              "Bahasa Aplikasi",
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            InkWell(
+                              onTap: () => Navigator.pop(context),
+                              child: Container(
+                                padding: EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  color: Colors.transparent,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 16),
+                        ...languages.asMap().entries.map((entry) {
+                          int index = entry.key;
+                          String language = entry.value;
+
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedLanguage = index;
+                              });
+                              Navigator.of(context).pop();
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  MyText(
+                                    language,
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                  Container(
+                                    width: 20,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: selectedLanguage == index ? secondaryColor : Colors.transparent,
+                                      shape: BoxShape.circle,
+                                      border: selectedLanguage != index ? Border.all(color: Colors.white, width: 1.5) : null,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        SizedBox(height: 8),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 }
