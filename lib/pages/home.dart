@@ -1,10 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:isyarat_kita/component/button.dart';
 import 'package:isyarat_kita/component/color.dart';
+import 'package:isyarat_kita/models/room_model.dart';
 import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/pages/kamus/kamus.dart';
+import 'package:isyarat_kita/sevices/room_service.dart';
 import 'package:isyarat_kita/widget/banner.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -35,8 +36,14 @@ class _HomePageState extends State<HomePage> {
             fit: BoxFit.cover,
             height: 450,
           ),
-          Positioned(child: _buildHeader(context)),
-          Positioned(child: _build(context))
+          Positioned(
+            top: 20,
+            left: 25,
+            child: _buildHeader(context)
+          ),
+          Positioned(
+            child: _build(context)
+          )
         ],
       ),
     );
@@ -47,56 +54,27 @@ class _HomePageState extends State<HomePage> {
     if (user == null) {
       return Center(child: CircularProgressIndicator());
     }
-    return isExpanded == true ?
-    SafeArea(
+    return SafeArea(
       child: Row(
         children: [
           CircleAvatar(
-            radius: 30,
+            radius: 25,
             backgroundImage: user.profilePic.isEmpty
                 ? AssetImage("assets/images/profile.png")
                 : FileImage(File(user.profilePic)) as ImageProvider,
             onBackgroundImageError: (exception, stackTrace) {
-      
+
             },
           ),
-            Text(
-              user.username,
-              style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.w600,
-              color: whiteColor
-            ),
-          )
-        ],
-      ),
-    ) : SafeArea(
-      child: Column(
-        children: [
+          SizedBox(width: 8,),
           Text(
-            "Daftar",
+            user.username,
             style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: whiteColor
-            ),
+            fontSize: 30,
+            fontWeight: FontWeight.w600,
+            color: whiteColor
           ),
-          Row(
-            children: [
-              Text(
-                "Daftar sekarang,",
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: whiteColor
-                ),
-              ),
-              MyButton(
-                onPressed: (){},
-                text: "Daftar"
-              )
-            ],
-          )
+        )
         ],
       ),
     );
@@ -104,7 +82,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _build(BuildContext context) {
     return SlidingUpPanel(
-      minHeight: MediaQuery.of(context).size.height * 0.73,
+      minHeight: MediaQuery.of(context).size.height * 0.8,
       maxHeight: MediaQuery.of(context).size.height * 0.8,
       borderRadius: const BorderRadius.only(
         topLeft: Radius.circular(24.0),
@@ -129,7 +107,7 @@ class _HomePageState extends State<HomePage> {
               _buildChooseKamus(context),
               SizedBox(height: 20,),
               _buildTrending(context),
-              SizedBox(height: 100,),
+              SizedBox(height: 120,),
             ],
           ),
         )
@@ -138,53 +116,99 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildRecentChat(BuildContext context){
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            "Recent Chat",
-            style: TextStyle(
-              fontWeight: FontWeight.w800,
-              fontSize: 30,
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 80,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 7,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Stack(
-                  clipBehavior: Clip.none,
+    return FutureBuilder<List<RoomModel>>(
+        future : RoomService().getLatestRoom(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
+          if (!snapshot.hasData) {
+            return const Center(child: Text("No vocabs available"));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 45,
-                      backgroundImage: AssetImage("assets/images/profile.png"),
-                    ),
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        "Recent Chat",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 30,
                         ),
                       ),
                     ),
+                    Text(
+                      "Mohon maaf Masih Kosong",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                    ),
                   ],
                 ),
-              );
-            },
-          ),
-        ),
-      ],
+              ),
+            );
+          }
+          final List<RoomModel> rooms = snapshot.data!;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  "Recent Chat",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 30,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 80,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: rooms.length,
+                  itemBuilder: (context, index) {
+                    final room = rooms[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          CircleAvatar(
+                            radius: 45,
+                            backgroundColor: Colors.grey.shade200,
+                            backgroundImage: room.image.isNotEmpty
+                                ? NetworkImage(room.image)
+                                : const AssetImage("assets/images/profile.png")
+                            as ImageProvider,
+                          ),
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        }
     );
   }
 
@@ -216,8 +240,8 @@ class _HomePageState extends State<HomePage> {
                 child: Image.asset(
                   "assets/images/sibi-logo.png",
                   fit: BoxFit.contain,
-                  width: 120,
-                  height: 120,
+                  width: 100,
+                  height: 100,
                 ),
               ),
               SizedBox(width: 50,),
@@ -231,8 +255,8 @@ class _HomePageState extends State<HomePage> {
                 child: Image.asset(
                   "assets/images/bisindo-logo.png",
                   fit: BoxFit.contain,
-                  width: 120,
-                  height: 120,
+                  width: 100,
+                  height: 100,
                 ),
               ),
             ],

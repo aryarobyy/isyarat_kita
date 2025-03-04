@@ -10,38 +10,36 @@ class Navbar extends StatelessWidget {
     required this.currentIndex,
     required this.onTapped,
   }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Positioned.fill(
-          child: Image.asset(
-            "assets/images/navbar.png",
-            fit: BoxFit.cover,
-          )
+    return Container(
+      height: 90,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/images/navbar.png"),
+          fit: BoxFit.contain,
         ),
-        BottomNavigationBar(
-          currentIndex: currentIndex,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          onTap: onTapped,
-          type: BottomNavigationBarType.fixed,
-          iconSize: 0,
-          selectedItemColor: secondaryColor,
-          unselectedItemColor: whiteColor,
-          items: List.generate(5, (index) {
-            String iconPath = 'assets/icons/${_getIconName(index)}.png';
-            return BottomNavigationBarItem(
-              icon: _buildNavItem(index, iconPath),
-              label: '',
-            );
-          }),
-        ),
-      ],
+      ),
+      child: BottomNavigationBar(
+        currentIndex: currentIndex,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        onTap: onTapped,
+        type: BottomNavigationBarType.fixed,
+        iconSize: 0,
+        selectedItemColor: Colors.red,
+        unselectedItemColor: Colors.white,
+        items: List.generate(5, (index) {
+          final iconPath = 'assets/icons/${_getIconName(index)}.png';
+          return BottomNavigationBarItem(
+            icon: _buildNavItem(index, iconPath),
+            label: '',
+          );
+        }),
+      ),
     );
   }
+
 
   String _getIconName(int index) {
     switch (index) {
@@ -56,10 +54,11 @@ class Navbar extends StatelessWidget {
 
   Widget _buildNavItem(int index, String iconPath) {
     final bool isSelected = (currentIndex == index);
+
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
-      width: 80,
-      height: isSelected ? 30 : 55,
+      width: 50,
+      height: isSelected ? 20 : 55,
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.center,
@@ -68,7 +67,7 @@ class Navbar extends StatelessWidget {
             AnimatedPositioned(
               duration: Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              top: -38,
+              top: -35,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -77,8 +76,8 @@ class Navbar extends StatelessWidget {
                     opacity: isSelected ? 1.0 : 0.0,
                     child: Image.asset(
                       'assets/images/nav.png',
-                      width: 140,
-                      height: 70,
+                      width: 120,
+                      height: 60,
                     ),
                   ),
                   TweenAnimationBuilder<double>(
@@ -89,8 +88,8 @@ class Navbar extends StatelessWidget {
                       return Transform.scale(
                         scale: value,
                         child: Container(
-                          width: index == 2 ? 0 : 52,
-                          height: index == 2 ? 0 : 52,
+                          width: index == 2 ? 0 : 45,
+                          height: index == 2 ? 0 : 45,
                           decoration: BoxDecoration(
                             color: secondaryColor,
                             shape: BoxShape.circle,
@@ -104,7 +103,7 @@ class Navbar extends StatelessWidget {
                     scale: isSelected ? 1.0 : 0.8,
                     child: ImageIcon(
                       AssetImage(iconPath),
-                      size: 55,
+                      size: 50,
                       color: index == 2 ? primaryColor : whiteColor,
                     ),
                   ),
@@ -117,7 +116,7 @@ class Navbar extends StatelessWidget {
               opacity: isSelected ? 0.0 : 1.0,
               child: ImageIcon(
                 AssetImage(iconPath),
-                size: 55,
+                size: 50,
                 color: index == 2 ? primaryColor : whiteColor,
               ),
             ),

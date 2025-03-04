@@ -130,13 +130,12 @@ class _ProfilePageState extends State<ProfilePage> {
             fontSize: 25,
             fontWeight: FontWeight.w500,
           ),
+          SizedBox(height: 10,),
           MyText(
-            user.bio,
+            user.bio.isEmpty ? "Bio" : user.bio,
             color: Colors.black,
             fontSize: 18,
           ),
-          SizedBox(height: 20),
-
           // Daftar pengaturan
           ListView.separated(
             shrinkWrap: true,

@@ -10,7 +10,6 @@ import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/models/vocab_model.dart';
 import 'package:isyarat_kita/pages/dashboard.dart';
 import 'package:isyarat_kita/sevices/images_service.dart';
-import 'package:isyarat_kita/sevices/user_service.dart';
 import 'package:isyarat_kita/sevices/vocab_service.dart';
 import 'package:isyarat_kita/widget/snackbar.dart';
 
@@ -21,136 +20,169 @@ class KamusPage extends StatelessWidget {
   UserModel? userData;
   KamusPage({super.key, required this.userData});
 
+
   @override
   Widget build(BuildContext context) {
-    final role = userData?.role;
-    return Scaffold(
-      appBar: AppBar(
-        title: Center(child: Text("Kamus Bahasa Isyarat")),
-        automaticallyImplyLeading: false,
-      ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Column(
-                children: [
-                  Container(
-                    margin: EdgeInsets.all(20),
-                    child: Row(
-                      children: [
-                        Image.asset("assets/images/sibi-logo.png"),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            "(Sistem Isyarat Bahasa Indonesia) adalah sistem bahasa isyarat yang dikembangkan untuk komunikasi dengan penyandang tunarungu di Indonesia. ",
-                            textAlign: TextAlign.justify,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            softWrap: true,
-                            overflow: TextOverflow.visible,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(380, 60),
-                    ),
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => SigncodeList(type: "SIBI")),
-                      );
-                    },
-                    child: Text(
-                      "Selengkapnya",
-                      style: TextStyle(
-                        fontSize: 35,
-                        fontWeight: FontWeight.w700,
-                        color: primaryColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 40),
-              Divider(
-                color: secondaryColor,
-                thickness: 8,
-              ),
-              SizedBox(height: 20),
-              Column(
-                children: [
-                  Container(
-                    margin: EdgeInsets.all(20),
-                    child: Row(
-                      children: [
-                        Image.asset("assets/images/bisindo-logo.png"),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            "(Bahasa Isyarat Indonesia) adalah bahasa isyarat yang berkembang secara alami di komunitas tunarungu Indonesia.",
-                            textAlign: TextAlign.justify,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            softWrap: true,
-                            overflow: TextOverflow.visible,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(380, 60),
-                    ),
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => SigncodeList(type: "BISINDO",)),
-                      );
-                    },
-                    child: Text(
-                      "Selengkapnya",
-                      style: TextStyle(
-                        fontSize: 35,
-                        fontWeight: FontWeight.w700,
-                        color: primaryColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          role == 'ADMIN' ? Positioned( //must admin to upload vocab
-            bottom: 15,
-            right: 15,
-            child: FloatingActionButton(
-              backgroundColor: primaryColor,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddKamus(),
-                  ),
-                );
-              },
-              child: Icon(
-                color: secondaryColor,
-                Icons.add,
-                size: 40,
+    return Container(
+      color: primaryColor,
+      child: SafeArea(
+        child: Column(
+          children: [
+            Center(
+              child: Text(
+                "KAMUS BAHASA ISYARAT",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: whiteColor,
+                ),
               ),
             ),
-          ) : SizedBox.shrink(),
-        ],
+            SizedBox(height: 30,),
+            Expanded(
+              child: _build(context)
+            )
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _build(BuildContext context) {
+    final role = userData?.role;
+    return Container(
+      padding: EdgeInsets.only(top: 20, left: 10),
+      decoration: BoxDecoration(
+        color: whiteColor,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(50),
+          topRight: Radius.circular(50),
+        ),
+      ),
+      child: Stack(
+          children: [
+            Column(
+              children: [
+                Column(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.all(20),
+                      child: Row(
+                        children: [
+                          Image.asset("assets/images/sibi-logo.png"),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              "(Sistem Isyarat Bahasa Indonesia) adalah sistem bahasa isyarat yang dikembangkan untuk komunikasi dengan penyandang tunarungu di Indonesia. ",
+                              textAlign: TextAlign.justify,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(380, 40),
+                        backgroundColor: primaryColor
+                      ),
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => SigncodeList(type: "SIBI")),
+                        );
+                      },
+                      child: Text(
+                        "Selengkapnya",
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 40),
+                Divider(
+                  color: primaryColor,
+                  thickness: 8,
+                ),
+                SizedBox(height: 20),
+                Column(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.all(20),
+                      child: Row(
+                        children: [
+                          Image.asset("assets/images/bisindo-logo.png"),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              "(Bahasa Isyarat Indonesia) adalah bahasa isyarat yang berkembang secara alami di komunitas tunarungu Indonesia.",
+                              textAlign: TextAlign.justify,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(380, 40),
+                        backgroundColor: primaryColor
+                      ),
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => SigncodeList(type: "BISINDO",)),
+                        );
+                      },
+                      child: Text(
+                        "Selengkapnya",
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            role == 'ADMIN' ? Positioned( //must admin to upload vocab
+              bottom: 15,
+              right: 15,
+              child: FloatingActionButton(
+                backgroundColor: primaryColor,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddKamus(),
+                    ),
+                  );
+                },
+                child: Icon(
+                  color: secondaryColor,
+                  Icons.add,
+                  size: 40,
+                ),
+              ),
+            ) : SizedBox.shrink(),
+          ],
+        ),
     );
   }
 }
