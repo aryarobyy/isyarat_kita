@@ -103,7 +103,7 @@ class RoomService{
    }
   }
 
-  Stream<RoomModel> getRoomById(String roomId) async* {
+  Future<RoomModel> getRoomById(String roomId) async {
    if (url == null) {
     throw Exception("url is not set in .env");
    }
@@ -112,7 +112,7 @@ class RoomService{
    if (res.statusCode == 200) {
     final Map<String, dynamic> responseData = jsonDecode(res.body);
     final data = responseData['data'];
-    yield RoomModel.fromMap(data);
+    return RoomModel.fromMap(data);
    } else if (res.statusCode == 400) {
     throw Exception("Invalid request: ${res.body}");
    } else {
@@ -120,7 +120,7 @@ class RoomService{
    }
   }
 
-  Stream <List<RoomModel>> getRooms() async* {
+  Future <List<RoomModel>> getRooms() async {
    if (url == null) {
     throw Exception("url is not set in .env");
    }
@@ -131,7 +131,7 @@ class RoomService{
     if (res.statusCode == 200) {
       List<dynamic> roomsData = response['data'];
       List<RoomModel> rooms = roomsData.map((room) => RoomModel.fromMap(room)).toList();
-      yield rooms;
+      return rooms;
     } else if (res.statusCode == 400) {
      throw Exception("Invalid request: ${res.body}");
     } else {
@@ -164,6 +164,25 @@ class RoomService{
     }
     try {
       final res = await http.get(Uri.parse('$url/latest'));
+      if (res.statusCode == 200) {
+        final Map<String, dynamic> response = jsonDecode(res.body);
+        List<dynamic> roomsData = response['data'];
+        List<RoomModel> rooms = roomsData.map((room) => RoomModel.fromMap(room)).toList();
+        return rooms;
+      }  else {
+        throw Exception("Failed to get latest room: ${res.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error getting room: $e");
+    }
+  }
+
+  Future<List<RoomModel>> getRoomByTitle(String title)async {
+    if (url == null) {
+      throw Exception("url is not set in .env");
+    }
+    try {
+      final res = await http.get(Uri.parse('$url/title/$title'));
       if (res.statusCode == 200) {
         final Map<String, dynamic> response = jsonDecode(res.body);
         List<dynamic> roomsData = response['data'];
