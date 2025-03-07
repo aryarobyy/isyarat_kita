@@ -1,19 +1,8 @@
-import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:isyarat_kita/component/button.dart';
-import 'package:isyarat_kita/component/color.dart';
-import 'package:isyarat_kita/component/text_field.dart';
-import 'package:isyarat_kita/pages/dashboard.dart';
-import 'package:isyarat_kita/sevices/images_service.dart';
-import 'package:isyarat_kita/sevices/room_service.dart';
-import 'package:isyarat_kita/widget/header.dart';
-import 'package:isyarat_kita/widget/snackbar.dart';
-import 'package:path/path.dart' as path;
+part of 'community.dart';
 
 class CreateRoom extends StatefulWidget {
-  final String userId;
-  const CreateRoom({super.key, required this.userId});
+  UserModel? userData;
+  CreateRoom({super.key, required this.userData});
 
   @override
   State<CreateRoom> createState() => _CreateRoomState();
@@ -22,7 +11,11 @@ class CreateRoom extends StatefulWidget {
 class _CreateRoomState extends State<CreateRoom> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
+  // final TextEditingController _userController = TextEditingController();
+  // final TextEditingController _searchController = TextEditingController();
   File? _selectedImage;
+  // String _searchQuery = '';
+  Map<String, dynamic>? userMap;
 
   @override
   void initState() {
@@ -48,18 +41,19 @@ class _CreateRoomState extends State<CreateRoom> {
     }
   }
 
-  void createRoom() async {
+  void _createRoom() async {
     final String title = _titleController.text.trim();
     if (title.isEmpty) {
       MySnackbar(title: "warning", text: "Judul tidak boleh kosong", type: "warning").show(context);
     }
 
       RoomService().createRoom(
-          authorId: widget.userId,
+          authorId: widget.userData!.userId,
           title: title,
           imageFile: _selectedImage,
           description: _descController.text.trim()
       );
+      // UserRoomService()
       Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => DashboardPage(initialTab: 3,)
@@ -69,6 +63,23 @@ class _CreateRoomState extends State<CreateRoom> {
 
   }
 
+  // void _onSearchUser () async {
+  //   final String username = _userController.text.trim();
+  //   if (username.isEmpty) {
+  //     return;
+  //   }
+  //   if (username == widget.userData!.username) {
+  //     MyPopup(title: 'Kamu tidak mencari dirimu sendiri', buttonText: 'Cari Lagi');
+  //   }
+  //
+  //   try{
+  //     final res = await UserService().getUserByUsername(username);
+  //
+  //   } catch (e) {
+  //     print("Cant Search user $e");
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,7 +87,9 @@ class _CreateRoomState extends State<CreateRoom> {
       body: SafeArea(
         child: Column(
           children: [
-            MyHeader(title: "Create room"),
+            MyHeader(onTap: () {
+              Navigator.pop(context);
+            },title: "Create room"),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -140,11 +153,13 @@ class _CreateRoomState extends State<CreateRoom> {
                       textColor: whiteColor,
                       outlineColor: whiteColor,
                     ),
+                    const SizedBox(height: 20,),
+
+
                     const SizedBox(height: 20),
 
-                    // Create Button
                     MyButton(
-                      onPressed: createRoom,
+                      onPressed: _createRoom,
                       text: "Create",
                       width: 400,
                     ),
@@ -159,4 +174,28 @@ class _CreateRoomState extends State<CreateRoom> {
       ),
     );
   }
+
+  // Widget _buildSearchUser (BuildContext context) {
+  //   return FutureBuilder<UserModel>(
+  //     future: UserService().getUserByEmail(_searchQuery.toLowerCase()),
+  //     builder: (context, snapshot) {
+  //       if (snapshot.connectionState == ConnectionState.waiting) {
+  //         return const Center(child: CircularProgressIndicator());
+  //       }
+  //       if (snapshot.hasError) {
+  //         return const Center(child: Text("Error loading user profile."));
+  //       }
+  //       final user = snapshot.data;
+  //       if (user == null) {
+  //         return const Center(child: Text("No user found."));
+  //       }
+  //
+  //       return UserTile(
+  //         user: user,
+  //         // onTap: () => handleCreateRoom({'uid': user.uid}),
+  //         onTap: () {},
+  //       );
+  //     },
+  //   );
+  // }
 }

@@ -1,14 +1,4 @@
-import 'package:chat_bubbles/bubbles/bubble_special_three.dart';
-import 'package:chat_bubbles/chat_bubbles.dart';
-import 'package:flutter/material.dart';
-import 'package:isyarat_kita/component/color.dart';
-import 'package:isyarat_kita/models/chat_model.dart';
-import 'package:isyarat_kita/models/room_model.dart';
-import 'package:isyarat_kita/models/user_model.dart';
-import 'package:isyarat_kita/sevices/chat_socket.dart';
-import 'package:isyarat_kita/sevices/room_service.dart';
-import 'package:isyarat_kita/sevices/user_service.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+part of 'community.dart';
 
 class ChatPage extends StatefulWidget {
   final String roomId;
@@ -73,7 +63,8 @@ class _ChatPageState extends State<ChatPage> {
         if (!mounted) return;
         print("Chat socket: $data");
         setState(() {
-          _chats = (data as List)
+          final messagesData = (data as List)[0] as List;
+          _chats = messagesData
               .map((json) => ChatModel.fromMap(json))
               .toList();
           _chats.sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -85,16 +76,17 @@ class _ChatPageState extends State<ChatPage> {
 
       _socket.on('newMessage', (data) {
         if (!mounted) return;
-        print("Received newMessage data: $data");
         if (data == null || (data is Map && data.isEmpty)) {
           print("Empty message data received, triggering reload.");
           _socket.emit("joinRoom", widget.roomId);
           return;
         }
-        setState(() {
-          _chats.insert(0, ChatModel.fromMap(data));
-          _chats.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        });
+        if(data['senderId'] != user?.userId){
+          setState(() {
+            _chats.insert(0, ChatModel.fromMap(data));
+            _chats.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          });
+        }
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) _scrollToBottom();
         });
@@ -109,9 +101,8 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-
   Future<UserModel?> _getCurrentUser() async {
-    final userData = await UserService().getCurrentUser();
+    final userData = await UserService().getCurrentUserLocal();
     if (mounted) {
       setState(() {
         user = userData;
@@ -128,7 +119,6 @@ class _ChatPageState extends State<ChatPage> {
       "senderId": user?.userId,
       "roomId": widget.roomId,
       "content": trimmedText,
-      "createdAt": DateTime.now().toIso8601String(),
     };
 
     setState(() {
@@ -259,32 +249,38 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildRoomHeader(BuildContext context) {
-    return StreamBuilder<RoomModel>(
-        stream: RoomService().getRoomById(widget.roomId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Text("Error loading messages: ${snapshot.error}"),
-            );
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: Text("No messages yet"));
-          }
+    return FutureBuilder<RoomModel>(
+      future: RoomService().getRoomById(widget.roomId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(
+            child: Text("Error loading messages: ${snapshot.error}"),
+          );
+        }
+        if (!snapshot.hasData) {
+          return const Center(child: Text("No messages yet"));
+        }
 
-          final room = snapshot.data!;
-          return Row(
+        final room = snapshot.data!;
+        return InkWell(
+          onTap: () {
+            Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (_) => CommunityDetail(roomData: room,),
+              )
+            );
+          },
+          child: Row(
             children: [
               InkWell(
                 onTap: () {
-                  Navigator.pop(context);
-                  super.dispose();
-                  },
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => DashboardPage(initialTab: 3,)));
+                },
                 child: Image.asset("assets/images/back-button.png", width: 60,)
               ),
-              SizedBox(width: 5,),
+              SizedBox(width: 10,),
               CircleAvatar(
                 backgroundImage: room.image.isNotEmpty == true
                     ? NetworkImage(room.image)
@@ -307,8 +303,9 @@ class _ChatPageState extends State<ChatPage> {
                 ),
               )
             ],
-          );
-        }
+          ),
+        );
+      }
     );
   }
 }

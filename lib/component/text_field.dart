@@ -11,6 +11,8 @@ class MyTextField extends StatefulWidget {
   final int? maxLine;
   final int? minLine;
   final String? hintText;
+  final Color? textColor;
+  final Color? outlineColor;
 
   const MyTextField({
     Key? key,
@@ -23,6 +25,8 @@ class MyTextField extends StatefulWidget {
     this.maxLine = 1,
     this.minLine = 1,
     this.hintText,
+    this.textColor,
+    this.outlineColor,
   }) : super(key: key);
 
   @override
@@ -42,56 +46,59 @@ class _MyTextFieldState extends State<MyTextField> {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
-      child: TextField(
-        enabled: true,
-        controller: widget.controller,
-        textCapitalization: widget.textCapitalization,
-        keyboardType: widget.inputType == TextInputType.multiline
-            ? TextInputType.multiline
-            : widget.inputType,
-        maxLines: widget.maxLine,
-        minLines: widget.minLine,
-        obscureText: _obscureText,
-        textAlign: TextAlign.start,
-        style: const TextStyle(
-          color: blackColor,
-          fontSize: 16,
-        ),
-        decoration: InputDecoration(
-          prefixIcon: widget.prefixIcon != null
-              ? Icon(widget.prefixIcon)
-              : null,
-          suffixIcon: widget.obscureText
-              ? IconButton(
-            icon: Icon(
-              _obscureText
-                  ? Icons.visibility_off
-                  : Icons.visibility,
-              color: Colors.grey,
+      child: Material(
+        color: Colors.transparent,
+        child: TextField(
+          enabled: true,
+          controller: widget.controller,
+          textCapitalization: widget.textCapitalization,
+          keyboardType: widget.inputType == TextInputType.multiline
+              ? TextInputType.multiline
+              : widget.inputType,
+          maxLines: widget.maxLine,
+          minLines: widget.minLine,
+          obscureText: _obscureText,
+          textAlign: TextAlign.start,
+          style: const TextStyle(
+            color: blackColor,
+            fontSize: 16,
+          ),
+          decoration: InputDecoration(
+            prefixIcon: widget.prefixIcon != null
+                ? Icon(widget.prefixIcon)
+                : null,
+            suffixIcon: widget.obscureText
+                ? IconButton(
+              icon: Icon(
+                _obscureText
+                    ? Icons.visibility_off
+                    : Icons.visibility,
+                color: Colors.grey,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscureText = !_obscureText;
+                });
+              },
+            )
+                : null,
+            isDense: true,
+            labelText: widget.name,
+            hintText: widget.hintText,
+            counterText: "",
+            labelStyle: TextStyle(color: widget.textColor ?? Colors.grey),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: widget.outlineColor ?? blackColor),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
             ),
-            onPressed: () {
-              setState(() {
-                _obscureText = !_obscureText;
-              });
-            },
-          )
-              : null,
-          isDense: true,
-          labelText: widget.name,
-          hintText: widget.hintText,
-          counterText: "",
-          labelStyle: const TextStyle(color: Colors.grey),
-          border: const OutlineInputBorder(
-            borderSide: BorderSide(color: blackColor),
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: blackColor),
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-          enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: blackColor),
-            borderRadius: BorderRadius.all(Radius.circular(10)),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: widget.outlineColor ?? blackColor),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: widget.outlineColor ?? blackColor),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
           ),
         ),
       ),
