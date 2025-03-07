@@ -16,7 +16,7 @@ class MyBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 150,
+      height: 120,
       width: double.infinity,
       child: CarouselSlider.builder(
         itemCount: items.length,

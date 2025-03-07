@@ -1,9 +1,14 @@
 part of 'kamus.dart';
 
-class SigncodeList extends StatelessWidget {
+class SigncodeList extends StatefulWidget {
   final String type;
   const SigncodeList({super.key, required this.type});
 
+  @override
+  State<SigncodeList> createState() => _SigncodeListState();
+}
+
+class _SigncodeListState extends State<SigncodeList> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -75,7 +80,7 @@ class SigncodeList extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   FutureBuilder<List<VocabModel>>(
-                    future: VocabService().getVocabByType(type),
+                    future: VocabService().getVocabByType(widget.type),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
@@ -86,7 +91,21 @@ class SigncodeList extends StatelessWidget {
                       if (!snapshot.hasData) {
                         return const Center(child: Text("No vocabs available"));
                       }
+                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(20),
+                            child: Text(
+                              "Mohon maaf, ${widget.type} belum tersedia",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                        );
+                      }
+
                       final List<VocabModel> vocabs = snapshot.data!;
+                      print("Vocab: $vocabs");
                       return Expanded(
                         child: GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
@@ -103,24 +122,22 @@ class SigncodeList extends StatelessWidget {
                           final vocab = vocabs[index];
                           return Container(
                             color: primaryColor.withOpacity(0.2),
-                            child: Center(
-                              child: Column(
-                                children: [
-                                  CachedNetworkImage(
-                                    imageUrl: vocab.image,
-                                    height: 75,
-                                    fit: BoxFit.cover,
+                            child: Column(
+                              children: [
+                                CachedNetworkImage(
+                                  imageUrl: vocab.image,
+                                  height: 75,
+                                  fit: BoxFit.cover,
+                                ),
+                                SizedBox(height: 10),
+                                Text(
+                                  '${vocab.name}',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.black,
                                   ),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    '${vocab.name}',
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           );
                         },
@@ -176,13 +193,15 @@ class SigncodeList extends StatelessWidget {
               Row(
                 children: [
                   InkWell(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () {
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => DashboardPage(initialTab: 1,)));
+                    },
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Image.asset(
                         "assets/images/back-button.png",
-                        width: 28,
-                        height: 28,
+                        width: 40,
+                        height: 40,
                       ),
                     ),
                   ),
@@ -191,7 +210,7 @@ class SigncodeList extends StatelessWidget {
                       child: Text(
                         "Kamus Bahasa isyarat",
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: whiteColor,
                         ),

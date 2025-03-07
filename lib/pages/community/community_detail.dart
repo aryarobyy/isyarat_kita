@@ -29,7 +29,7 @@ class _CommunityDetailState extends State<CommunityDetail> {
           left: 16,
           child: InkWell(
             onTap: () {
-              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => ChatPage(roomId: widget.roomData.roomId)));
             },
             child: Image.asset(
               "assets/images/back-button.png",
@@ -57,7 +57,7 @@ class _CommunityDetailState extends State<CommunityDetail> {
             ),
             const Divider(),
             Text(
-              widget.roomData.description ?? "Deskripsi",
+              widget.roomData.description,
               style: TextStyle(
                 fontSize: 22,
                 color: whiteColor,

@@ -31,13 +31,13 @@ class _LoginState extends State<Login> {
     }
     try{
       await UserService().loginUser(email: _emailController.text.toLowerCase(), password: _passwordController.text);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage()));
       MyPopup.show(
         context,
         title: "Login Berhasil",
-        content: "Silakan masuk untuk melanjutkan.",
+        content: "Selamat datang!",
         buttonText: "Masuk",
       );
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage()));
     } catch (e) {
       MySnackbar(
         title: "Failed",
@@ -50,7 +50,6 @@ class _LoginState extends State<Login> {
         isLoading = false;
       });
     }
-
   }
 
   @override
@@ -168,13 +167,16 @@ class _LoginState extends State<Login> {
                         color: whiteColor
                       ),
                     ),
-                    InkWell(
-                      onTap: widget.onTap,
-                      child: Text(
-                        " DAFTAR",
-                        style: TextStyle(
-                          fontSize: size.width * 0.039,
-                          color: Colors.blue,
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: widget.onTap,
+                        child: Text(
+                          "DAFTAR",
+                          style: TextStyle(
+                            fontSize: size.width * 0.039,
+                            color: Colors.blue,
+                          ),
                         ),
                       ),
                     ),

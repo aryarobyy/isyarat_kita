@@ -3,10 +3,12 @@ import 'package:isyarat_kita/component/color.dart'; // Adjust import to your pro
 
 class MyHeader extends StatelessWidget {
   final String title;
+  final void Function()? onTap;
 
   const MyHeader({
     Key? key,
     required this.title,
+    required this.onTap,
   }) : super(key: key);
 
   @override
@@ -17,16 +19,13 @@ class MyHeader extends StatelessWidget {
       child: Row(
         children: [
           InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: onTap,
             child: Image.asset(
               "assets/images/back-button.png",
               width: 40,
               height: 40,
             ),
           ),
-
           const SizedBox(width: 8),
           Expanded(
             child: Text(

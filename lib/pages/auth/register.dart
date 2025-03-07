@@ -42,12 +42,10 @@ class _RegisterState extends State<Register> {
         MyPopup.show(
           context,
           title: "Akun Berhasil Dibuat!",
-          content: "Silakan masuk untuk melanjutkan.",
+          content: "Silakan login untuk masuk.",
           buttonText: "Lanjut",
         );
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => Authentication())
-        );
+        widget.onTap?.call();
       } else{
         MySnackbar(title: "Failed", text: "Password 1 and 2 must same", type: "failure").show(context);
       }
@@ -120,13 +118,16 @@ class _RegisterState extends State<Register> {
                   ),
                 ),
                 SizedBox(width: size.width * 0.01),
-                InkWell(
-                  onTap: widget.onTap,
-                  child: Text(
-                    "Masuk",
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: size.width * 0.038,
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: widget.onTap,
+                    child: Text(
+                      "Masuk",
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: size.width * 0.038,
+                      ),
                     ),
                   ),
                 )

@@ -102,7 +102,7 @@ class VocabService{
       throw Exception("url is not set in .env");
     }
     try {
-      final res = await http.get(Uri.parse('$url/get/$type'));
+      final res = await http.get(Uri.parse('$url/signCode/$type'));
       final Map<String, dynamic> response = jsonDecode(res.body);
 
       if (res.statusCode == 200) {

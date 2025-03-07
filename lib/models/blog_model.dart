@@ -26,7 +26,7 @@ class BlogModel {
     final String title = data['title'] ?? '';
     final String content = data['content'] ?? '';
     final String type = data['type'] ?? '';
-    final DateTime createdAt = DateTime.now();
+    final DateTime createdAt = DateTime.parse(data['createdAt']);
     final String updatedAt = data['updatedAt'] ?? '';
 
     return BlogModel(
@@ -43,7 +43,7 @@ class BlogModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'blogId': blogId,
+      'id': blogId,
       'author': author,
       'image': image,
       'title': title,

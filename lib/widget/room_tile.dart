@@ -26,8 +26,8 @@ class RoomTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<RoomModel>(
-      stream: RoomService().getRoomById(roomId),
+    return FutureBuilder<RoomModel>(
+      future: RoomService().getRoomById(roomId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -70,8 +70,8 @@ class RoomTile extends StatelessWidget {
                   "No chat yet",
                   style: TextStyle(color: Colors.grey, fontSize: 16),
                 )
-                    : StreamBuilder<List<ChatModel>>(
-                  stream: ChatService().getChatByRoomId(roomId),
+                    : FutureBuilder<ChatModel?>( //Nullable
+                  future: ChatService().getLatestChat(roomId),
                   builder: (context, chatSnapshot) {
                     if (chatSnapshot.connectionState ==
                         ConnectionState.waiting) {
@@ -83,7 +83,7 @@ class RoomTile extends StatelessWidget {
                     }
                     if (chatSnapshot.hasError) {
                       return const Text(
-                        "Error loading chat",
+                        "Error loading message",
                         style: TextStyle(
                             color: Colors.red, fontSize: 16),
                       );
@@ -96,24 +96,26 @@ class RoomTile extends StatelessWidget {
                             color: Colors.grey, fontSize: 16),
                       );
                     }
-                    final List<ChatModel> chats = chatSnapshot.data!;
-                    ChatModel latestChat;
-                    if (chats.isNotEmpty) {
-                      latestChat = chats.last;
-                    } else {
-                      return const Text(
-                        "No message yet",
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
-                      );
-                    }
-                    return Text(
-                      latestChat.content ?? "",
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 16,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    final ChatModel chats = chatSnapshot.data!;
+                    return Stack(
+                      children: [
+                        Text(
+                          chats.content,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            DateFormat.Hm().format(chats.createdAt),
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                          )
+                        )
+                      ],
                     );
                   },
                 ),

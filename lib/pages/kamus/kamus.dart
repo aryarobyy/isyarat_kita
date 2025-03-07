@@ -50,6 +50,7 @@ class KamusPage extends StatelessWidget {
 
   Widget _build(BuildContext context) {
     final role = userData?.role;
+    print("Role: $role");
     return Container(
       padding: EdgeInsets.only(top: 20, left: 10),
       decoration: BoxDecoration(
@@ -161,9 +162,9 @@ class KamusPage extends StatelessWidget {
                 ),
               ],
             ),
-            role == 'ADMIN' ? Positioned( //must admin to upload vocab
-              bottom: 15,
-              right: 15,
+            if (role == 'ADMIN') Positioned( //must admin to upload vocab
+              bottom: 90,
+              right: 20,
               child: FloatingActionButton(
                 backgroundColor: primaryColor,
                 onPressed: () {
@@ -180,7 +181,7 @@ class KamusPage extends StatelessWidget {
                   size: 40,
                 ),
               ),
-            ) : SizedBox.shrink(),
+            ),
           ],
         ),
     );

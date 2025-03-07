@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_middleware/flutter_middleware.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:isyarat_kita/component/color.dart';
 import 'package:isyarat_kita/component/navbar.dart';
 import 'package:isyarat_kita/middleware/user_middleware.dart';
 import 'package:isyarat_kita/models/user_model.dart';
@@ -28,6 +28,18 @@ class _DashboardPageState extends State<DashboardPage> {
   final _storage = FlutterSecureStorage();
   bool isLoggedin = false;
   bool _isLoading = true;
+
+  // UserModel userData = UserModel( // dummy data
+  //   userId: "3b052129-f4c1-46fb-81cc-e68e2923c187",
+  //   email: "ilhamgod14@gmaill.com",
+  //   profilePic: "",
+  //   bannerPic: "",
+  //   username: "ilhamgodddd",
+  //   name: "",
+  //   bio: "My name bio",
+  //   role: "ADMIN",
+  //   createdAt: DateTime(2024, 1, 1),
+  // );
 
   @override
   void initState()  {
@@ -110,8 +122,24 @@ class _DashboardPageState extends State<DashboardPage> {
     ];
 
     return Scaffold(
-      body: widgetOptions[_currentIndex],
-      bottomNavigationBar: Navbar(onTapped: _onTapped, currentIndex: _currentIndex),
+      resizeToAvoidBottomInset: false,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: widgetOptions[_currentIndex],
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: -10,
+            child: Navbar(
+              currentIndex: _currentIndex,
+              onTapped: _onTapped,
+            ),
+          ),
+        ],
+      ),
     );
+
   }
 }
