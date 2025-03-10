@@ -1,7 +1,41 @@
 part of 'settings.dart';
 
-class Account extends StatelessWidget {
-  const Account({super.key});
+class Account extends StatefulWidget {
+  UserModel? userData;
+  Account({
+    super.key,
+    required this.userData
+  });
+
+  @override
+  State<Account> createState() => _AccountState();
+}
+
+class _AccountState extends State<Account> {
+  void _handleDeleteAccount() {
+    MyPopup2.show(
+      context,
+      title: "Konfirmasi Hapus Akun",
+      agreeText: "Ya, Hapus Akun",
+      disagreeText: "Batal",
+      onAgreePressed: () async {
+        try {
+          await UserService().deleteUser(widget.userData!);
+          MyPopup.show(context, title: "Akun berhasil dihapus", buttonText: "Lanjut");
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => Authentication()),
+          );
+          print("User berhasil dihapus");
+        } catch (e) {
+          Navigator.of(context).pop();
+          print("Error $e");
+        }
+      },
+      onDisagreePressed: () => Navigator.of(context).pop(),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +64,12 @@ class Account extends StatelessWidget {
                 ),
                 title: MyText(data['content']),
                 onTap: () {
+                  if (data.containsKey('onTapped')) {
+                    data['onTapped']();
+                  }
                 },
                 subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start, // Mengatur agar teks rata kiri
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (data.containsKey('subtitle1'))
                       MyText(
@@ -70,6 +107,7 @@ class Account extends StatelessWidget {
     {
       "icons": Icons.delete_forever,
       "content": "Hapus Akun",
+      "onTapped": _handleDeleteAccount
     },
   ];
 }

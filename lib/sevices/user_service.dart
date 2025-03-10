@@ -350,19 +350,51 @@ class UserService {
     }
   }
 
-  Future <void> deleteUser(String userId) async {
-    if (url == null) {
+  Future <void> deleteUser(UserModel userData) async {
+    if (url.isEmpty) {
       throw Exception("url is not set in .env");
     }
     try {
-      final res = await http.delete(Uri.parse('$url/$userId'));
+      final dir = await getTemporaryDirectory();
+      final profileFile = '${dir.path}/Profile/${userData.userId}.png';
+      final bannerFile = '${dir.path}/Banner/${userData.userId}.png';
+      final pp = File(profileFile);
+      final banner = File(bannerFile);
+
+      if (await pp.exists()) {
+        await pp.delete();
+        print("Image deleted succesfully");
+      }
+
+      if (await banner.exists()) {
+        await banner.delete();
+        print("Image deleted succesfully");
+      }
+
+      await _storage.delete(key: 'userData');
+      await _storage.delete(key: 'token');
+
+      final body = jsonEncode({
+        'profilePic': userData.profilePic,
+        'bannerPic': userData.bannerPic,
+      });
+
+      final res = await http.delete(
+        Uri.parse('$url/${userData.userId}'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: body,
+      );
+
+
       if (res.statusCode == 200) {
         return;
       } else {
         throw Exception("Failed to delete user: ${res.statusCode}");
       }
     } catch (e) {
-      throw Exception("Error getting users: $e");
+      throw Exception("Error deleting users: $e");
     }
   }
 
