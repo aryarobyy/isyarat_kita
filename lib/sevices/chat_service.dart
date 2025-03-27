@@ -3,8 +3,6 @@ import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:isyarat_kita/models/chat_model.dart';
-import 'package:isyarat_kita/models/room_model.dart';
-import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 
 final api = dotenv.env['MOBILE_API'];
@@ -97,13 +95,13 @@ class ChatService{
     }
   }
 
-  Future<ChatModel> getChatById(String chatId) async {
+  Stream<ChatModel> getChatById(String chatId) async* {
     final res = await http.get(Uri.parse('$url/$chatId'));
 
     if (res.statusCode == 200) {
       final Map<String, dynamic> responseData = jsonDecode(res.body);
       final data = responseData['data'];
-      return ChatModel.fromMap(data);
+      yield ChatModel.fromMap(data);
     } else if (res.statusCode == 400) {
       throw Exception("Invalid request: ${res.body}");
     } else {
@@ -126,14 +124,14 @@ class ChatService{
     }
   }
 
-  Future <List<ChatModel>> getChats() async {
+  Stream <List<ChatModel>> getChats() async* {
     try {
       final res = await http.put(Uri.parse('$url/'));
       final Map<String, dynamic> response = jsonDecode(res.body);
       if (res.statusCode == 200) {
         List<dynamic> chatsData = response['data'];
         List<ChatModel> chats = chatsData.map((chat) => ChatModel.fromMap(chat)).toList();
-        return chats;
+        yield chats;
       } else if (res.statusCode == 400) {
         throw Exception("Invalid request: ${res.body}");
       } else {
