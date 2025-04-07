@@ -8,13 +8,13 @@ import 'package:isyarat_kita/component/color.dart';
 import 'package:isyarat_kita/component/text_field.dart';
 import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/models/vocab_model.dart';
+import 'package:isyarat_kita/pages/admin/add_vocab.dart';
 import 'package:isyarat_kita/pages/dashboard.dart';
 import 'package:isyarat_kita/sevices/images_service.dart';
 import 'package:isyarat_kita/sevices/vocab_service.dart';
 import 'package:isyarat_kita/widget/snackbar.dart';
 
 part 'signcode_list.dart';
-part 'add_kamus.dart';
 
 class KamusPage extends StatelessWidget {
   UserModel? userData;
@@ -161,26 +161,6 @@ class KamusPage extends StatelessWidget {
                   ],
                 ),
               ],
-            ),
-            if (role == 'ADMIN') Positioned( //must admin to upload vocab
-              bottom: 90,
-              right: 20,
-              child: FloatingActionButton(
-                backgroundColor: primaryColor,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddKamus(),
-                    ),
-                  );
-                },
-                child: Icon(
-                  color: secondaryColor,
-                  Icons.add,
-                  size: 40,
-                ),
-              ),
             ),
           ],
         ),
