@@ -11,52 +11,47 @@ final url = '$api/blog';
 
 class BlogService{
   Future<BlogModel> postBlog({
-    required String author,
+    required String authorId,
+    required String authorName,
     required String title,
+    required String content,
+    required Type type,
+    File? imageFile,
   }) async {
-    if(author.isEmpty){
-      throw Exception("Author tidak boleh kosong");
-    }
     if (url == null) {
-      throw Exception("API URL is not set in .env"  );
+      throw Exception("API URL is not set in .env");
     }
-    final String uuid = const Uuid().v4();
-    BlogModel blog = BlogModel(
-      blogId: uuid,
-      image: "",
-      author: author,
-      title: title,
-      content: "",
-      type: "",
-      createdAt: DateTime.now(),
-    );
-    final res = await http.post(
-      Uri.parse('$url/'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'blogId': blog.blogId,
-        'image': blog.image,
-        'author': blog.author,
-        'title': blog.title,
-        'type': blog.type,
-        'content': blog.content,
-        'createdAt': blog.createdAt.toIso8601String(),
-      }),
-    );
-    if (res.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(res.body);
 
-      if (!data.containsKey('data')) {
-        throw Exception("Invalid response: missing 'data' field");
+    try {
+      final uri = Uri.parse('$url/');
+      final request = http.MultipartRequest('POST', uri);
+
+      request.fields['authorId'] = authorId;
+      request.fields['title'] = title;
+      request.fields['content'] = content;
+      request.fields['createdBy'] = authorName;
+      request.fields['type'] = type.toString().split('.').last;
+
+      if (imageFile != null) {
+        final multipartFile = await http.MultipartFile.fromPath('image', imageFile.path);
+        request.files.add(multipartFile);
       }
 
-      return BlogModel.fromMap(data['data']);
-    } else if (res.statusCode == 400) {
-      throw Exception("Invalid request: ${res.body}");
-    } else {
-      throw Exception("Failed to create blog: ${res.statusCode}");
+      final streamedResponse = await request.send();
+      final res = await http.Response.fromStream(streamedResponse);
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (!data.containsKey('data')) {
+          throw Exception("Invalid response: missing 'data' field");
+        }
+        return BlogModel.fromMap(data['data']);
+      } else if (res.statusCode == 400) {
+        throw Exception("Invalid request: ${res.body}");
+      } else {
+        throw Exception("Failed to create blog: ${res.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error create blog: $e");
     }
   }
 
