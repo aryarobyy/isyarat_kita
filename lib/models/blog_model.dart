@@ -1,4 +1,11 @@
-enum Type {ARTICLE, NEWS, EVENT}
+enum Type {
+  ARTICLE,
+  NEWS,
+  EVENT;
+
+  @override
+  String toString() => name;
+}
 
 class BlogModel {
   final int blogId;
