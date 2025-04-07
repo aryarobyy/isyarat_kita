@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:isyarat_kita/models/blog_model.dart';
 import 'package:isyarat_kita/models/vocab_model.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;

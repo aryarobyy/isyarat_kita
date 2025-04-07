@@ -14,7 +14,7 @@ class VocabModel {
   factory VocabModel.fromMap(Map<String, dynamic> data) {
     final int vocabId = data['id'] ?? '';
     final String image = data['image'] ?? '';
-    final String type = data['signCode'] ?? '';
+    final String type = data['signCode'] ?? "";
     final String name = data['name'] ?? '';
 
     return VocabModel(
@@ -29,7 +29,7 @@ class VocabModel {
     return {
       'id': vocabId,
       'image': image,
-      'type': type,
+      'signCode': type,
       'name': name,
     };
   }
