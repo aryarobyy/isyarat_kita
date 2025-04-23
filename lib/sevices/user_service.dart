@@ -20,122 +20,87 @@ class UserService {
   }
 
   Future<void> savingUser() async {
-    final userDataString = await _storage.read(key: 'userData');
-
-    if (userDataString == null) {
-      throw Exception("User data undefined");
-    }
-
     try {
-      final Map<String, dynamic> userMap = jsonDecode(userDataString);
-      final String? profilePicUrl = userMap['profilePic'];
-      final String? bannerPicUrl = userMap['bannerPic'];
-      final String? userId = userMap['id'];
+      final userDataString = await _storage.read(key: 'userData');
+      if (userDataString == null) {
+        throw Exception("User data undefined");
+      }
 
+      final Map<String, dynamic> userMap = jsonDecode(userDataString);
+      final String? userId = userMap['id'];
       if (userId == null) {
         throw Exception("User id is missing in stored userData");
       }
 
       Map<String, dynamic> updatedUserData = Map<String, dynamic>.from(userMap);
 
+      final String? profilePicUrl = userMap['profilePic'];
       if (profilePicUrl != null && profilePicUrl.isNotEmpty &&
           (profilePicUrl.startsWith('http://') || profilePicUrl.startsWith('https://'))) {
-        try {
-          print("Downloading profile pic from: $profilePicUrl");
-          final http.Response response = await http.get(Uri.parse(profilePicUrl));
 
-          if (response.statusCode == 200) {
-            final dir = await getApplicationDocumentsDirectory();
-            final profileDir = Directory('${dir.path}/Profile');
-            if (!await profileDir.exists()) {
-              await profileDir.create(recursive: true);
-            }
+        final savedProfilePath = await _downloadAndSaveImage(
+            profilePicUrl, userId, 'Profile');
 
-            final originalImage = img.decodeImage(response.bodyBytes);
-
-            if (originalImage != null) {
-              final filename = '${profileDir.path}/$userId.png';
-              final file = File(filename);
-
-              final pngBytes = img.encodePng(originalImage);
-              await file.writeAsBytes(pngBytes);
-
-              if (await file.exists()) {
-                updatedUserData['profilePic'] = filename;
-                print("Profile picture saved to $filename");
-              } else {
-                print("Failed to write converted PNG file");
-              }
-            } else {
-              print("Failed to decode the original image");
-            }
-          } else {
-            print("Failed to download profile pic: ${response.statusCode}");
-          }
-        } catch (e) {
-          print("Error during profile image download and conversion: $e");
-          print("Stack trace: ${StackTrace.current}");
+        if (savedProfilePath != null) {
+          updatedUserData['profilePic'] = savedProfilePath;
+          print("Profile picture set to local path: $savedProfilePath");
         }
       }
 
+      final String? bannerPicUrl = userMap['bannerPic'];
       if (bannerPicUrl != null && bannerPicUrl.isNotEmpty &&
           (bannerPicUrl.startsWith('http://') || bannerPicUrl.startsWith('https://'))) {
-        try {
-          print("Downloading profile pic from: $bannerPicUrl");
-          final http.Response response = await http.get(Uri.parse(bannerPicUrl));
 
-          if (response.statusCode == 200) {
-            final dir = await getApplicationDocumentsDirectory();
-            final bannereDir = Directory('${dir.path}/Banner');
-            if (!await bannereDir.exists()) {
-              await bannereDir.create(recursive: true);
-            }
+        final savedBannerPath = await _downloadAndSaveImage(
+            bannerPicUrl, userId, 'Banner');
 
-            final originalImage = img.decodeImage(response.bodyBytes);
-
-            if (originalImage != null) {
-              final filename = '${bannereDir.path}/$userId.png';
-              final file = File(filename);
-
-              final pngBytes = img.encodePng(originalImage);
-              await file.writeAsBytes(pngBytes);
-
-              if (await file.exists()) {
-                updatedUserData['bannerPic'] = filename;
-                print("Profile picture saved to $filename");
-              } else {
-                print("Failed to write converted PNG file");
-              }
-            } else {
-              print("Failed to decode the original image");
-            }
-          } else {
-            print("Failed to download profile pic: ${response.statusCode}");
-          }
-        } catch (e) {
-          print("Error during profile image download and conversion: $e");
-          print("Stack trace: ${StackTrace.current}");
+        if (savedBannerPath != null) {
+          updatedUserData['bannerPic'] = savedBannerPath;
+          print("Banner picture set to local path: $savedBannerPath");
         }
       }
-      final UserModel newData = UserModel(
-        userId: userId,
-        email: updatedUserData['email'] ?? '',
-        profilePic: updatedUserData['profilePic'] ?? '',
-        bannerPic: updatedUserData['bannerPic'] ?? '',
-        username: updatedUserData['username'] ?? '',
-        name: updatedUserData['name'] ?? '',
-        bio: updatedUserData['bio'] ?? '',
-        role: updatedUserData['role'] ?? '',
-        createdAt: updatedUserData['createdAt'] != null
-            ? DateTime.parse(updatedUserData['createdAt'])
-            : DateTime.now(),
-      );
 
-      await _storage.write(key: 'userData', value: jsonEncode(newData.toMap()));
+      await _storage.write(key: 'userData', value: jsonEncode(updatedUserData));
+      print("Updated user data with local image paths: ${jsonEncode(updatedUserData)}");
     } catch (e) {
       print("Error in savingUser: $e");
       print("Stack trace: ${StackTrace.current}");
     }
+  }
+
+  Future<String?> _downloadAndSaveImage(String url, String userId, String dirName) async {
+    try {
+      print("Downloading image from: $url");
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final dir = await getApplicationDocumentsDirectory();
+        final imageDir = Directory('${dir.path}/$dirName');
+
+        if (!await imageDir.exists()) {
+          await imageDir.create(recursive: true);
+        }
+
+        final image = img.decodeImage(response.bodyBytes);
+        if (image == null) {
+          print("Failed to decode image");
+          return null;
+        }
+
+        final filePath = '${imageDir.path}/$userId.png';
+        final file = File(filePath);
+
+        await file.writeAsBytes(img.encodePng(image));
+        print("Image saved to: $filePath");
+
+        return filePath;
+      } else {
+        print("Failed to download image. Status code: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error downloading and saving image: $e");
+    }
+    return null;
   }
 
   Future<UserModel> getCurrentUserLocal() async {
@@ -171,7 +136,7 @@ class UserService {
         username: username,
         name: "",
         bio: "",
-        role: 'USER',
+        role: Role.USER,
         createdAt: DateTime.now(),
       );
 
@@ -187,7 +152,7 @@ class UserService {
           'image': user.profilePic,
           'username': user.username,
           'name': user.name,
-          'role': user.role,
+          'role': user.role.toString().split('.').last,
           'createdAt': user.createdAt.toIso8601String(),
         }),
       );
@@ -245,7 +210,13 @@ class UserService {
         await _storage.write(key: 'token', value: responseData['token']);
 
         await savingUser();
-        return UserModel.fromMap(userData);
+        final updatedUserDataString = await _storage.read(key: 'userData');
+        if (updatedUserDataString == null) {
+          throw Exception("Updated user data not found");
+        }
+
+        final updatedUserData = jsonDecode(updatedUserDataString);
+        return UserModel.fromMap(updatedUserData);
       } else {
         throw Exception('Failed to log in: ${responseData['message'] ?? res.body}');
       }
@@ -264,6 +235,23 @@ class UserService {
       final Map<String, dynamic> responseData = jsonDecode(res.body);
       final data = responseData['data'];
       return UserModel.fromMap(data);
+    } else if (res.statusCode == 400) {
+      throw Exception("Invalid request: ${res.body}");
+    } else {
+      throw Exception("Failed to fetch user: ${res.statusCode}");
+    }
+  }
+
+  Stream<UserModel> streamUserById(String userId) async* {
+    if (url == null) {
+      throw Exception("url is not set in .env");
+    }
+    final res = await http.get(Uri.parse('$url/$userId'));
+
+    if (res.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(res.body);
+      final data = responseData['data'];
+      yield UserModel.fromMap(data);
     } else if (res.statusCode == 400) {
       throw Exception("Invalid request: ${res.body}");
     } else {

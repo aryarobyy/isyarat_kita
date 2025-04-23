@@ -1,3 +1,12 @@
+enum Role {
+  ADMIN,
+  USER;
+
+  @override
+  String toString() => name;
+}
+
+
 class UserModel {
   final String userId;
   final String email;
@@ -6,7 +15,7 @@ class UserModel {
   final String username;
   final String name;
   final String bio;
-  final String role;
+  final Role role;
   final DateTime createdAt;
 
   UserModel({
@@ -22,15 +31,23 @@ class UserModel {
   });
 
   factory UserModel.fromMap(Map<String, dynamic> data) {
+    Role parseRole(String? roleStr) {
+      if (roleStr != null) {
+        final actualRole = roleStr.contains('.') ? roleStr.split('.').last : roleStr;
+        if (actualRole.toUpperCase() == 'ADMIN') return Role.ADMIN;
+      }
+      return Role.USER;
+    }
+
     return UserModel(
-      userId: data['id'] ?? data['userId'] ??"",
+      userId: data['id'] ?? data['userId'] ?? "",
       email: data['email'] ?? "",
       profilePic: data['profilePic'] ?? "",
       bannerPic: data['bannerPic'] ?? "",
       username: data['username'] ?? "",
       name: data['name'] ?? "",
       bio: data['bio'] ?? "",
-      role: data['role'] ?? "",
+      role: parseRole(data['role'].toString().split('.').last),
       createdAt: data['createdAt'] != null
           ? DateTime.parse(data['createdAt'])
           : DateTime.now(),
@@ -46,7 +63,7 @@ class UserModel {
       'username': username,
       'name': name,
       'bio': bio,
-      'role': role,
+      'role': role.toString(),
       'createdAt': createdAt.toIso8601String(),
     };
   }
@@ -59,7 +76,7 @@ class UserModel {
     String? username,
     String? name,
     String? bio,
-    String? role,
+    Role? role,
   }) {
     return UserModel(
       userId: userId ?? this.userId,
