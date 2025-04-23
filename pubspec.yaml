@@ -23,7 +23,7 @@ dependencies:
   path_provider: ^2.1.5
   flutter_secure_storage: ^9.2.4
   gal: ^2.3.1
-  tflite_flutter: ^0.11.0 #untuk sambungin ke model ml
+#  tflite_flutter: ^0.11.0 #untuk sambungin ke model ml
   crypto: ^3.0.6
   path: ^1.8.3
   chat_bubbles: ^1.6.0
@@ -33,7 +33,9 @@ dependencies:
   dropdown_button2: ^2.3.9
   sliding_up_panel: ^2.0.0+1
   carousel_slider: ^5.0.0
-  awesome_notifications: ^0.10.0
+#  awesome_notifications: ^0.10.0
+  device_info_plus: ^11.3.0
+  curved_navigation_bar: ^1.0.6
 
 dev_dependencies:
   flutter_test:

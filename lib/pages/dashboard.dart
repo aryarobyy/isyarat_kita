@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:isyarat_kita/component/color.dart';
-import 'package:isyarat_kita/component/navbar.dart';
+import 'package:isyarat_kita/util/color.dart';
 import 'package:isyarat_kita/middleware/user_middleware.dart';
 import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/pages/auth/auth.dart';
@@ -29,6 +29,7 @@ class _DashboardPageState extends State<DashboardPage> {
   bool isLoggedin = false;
   bool _isLoading = true;
 
+  // late UserModel _dummyUser = userData;
   // UserModel userData = UserModel( // dummy data
   //   userId: "3b052129-f4c1-46fb-81cc-e68e2923c187",
   //   email: "ilhamgod14@gmaill.com",
@@ -37,10 +38,10 @@ class _DashboardPageState extends State<DashboardPage> {
   //   username: "ilhamgodddd",
   //   name: "",
   //   bio: "My name bio",
-  //   role: "ADMIN",
+  //   role: Role.ADMIN,
   //   createdAt: DateTime(2024, 1, 1),
   // );
-
+  
   @override
   void initState()  {
     super.initState();
@@ -70,6 +71,9 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> _getCurrentUser() async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
       final token = await _storage.read(key: "token") ?? "";
       if (token.isEmpty) {
@@ -105,7 +109,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: CircularProgressIndicator(),
       );
     }
 
@@ -121,6 +125,14 @@ class _DashboardPageState extends State<DashboardPage> {
       ProfilePage(userData: _userData),
     ];
 
+    final _getIconName = [
+      ImageIcon(AssetImage('assets/icons/home.png'), size: 40,color: Colors.white),
+      ImageIcon(AssetImage('assets/icons/hand.png'), size: 40,color: Colors.white),
+      ImageIcon(AssetImage('assets/icons/mid.png'),size: 45,color: Colors.white),
+      ImageIcon(AssetImage('assets/icons/msg.png'),size: 40,color: Colors.white),
+      ImageIcon(AssetImage('assets/icons/setting.png'),size: 40,color: Colors.white,),
+    ];
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
@@ -131,11 +143,15 @@ class _DashboardPageState extends State<DashboardPage> {
           Positioned(
             left: 0,
             right: 0,
-            bottom: -10,
-            child: Navbar(
-              currentIndex: _currentIndex,
-              onTapped: _onTapped,
-            ),
+            bottom: -8,
+            child: CurvedNavigationBar(
+              items: _getIconName,
+              onTap: _onTapped,
+              color: primaryColor,
+              index: _currentIndex,
+              backgroundColor: Colors.transparent,
+              buttonBackgroundColor: secondaryColor,
+            )
           ),
         ],
       ),
