@@ -1,13 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:isyarat_kita/component/color.dart';
+import 'package:isyarat_kita/util/color.dart';
 import 'package:isyarat_kita/models/blog_model.dart';
 import 'package:isyarat_kita/models/room_model.dart';
 import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/pages/kamus/kamus.dart';
 import 'package:isyarat_kita/sevices/blog_service.dart';
 import 'package:isyarat_kita/sevices/room_service.dart';
+import 'package:isyarat_kita/util/size_extension.dart';
 import 'package:isyarat_kita/widget/banner.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -22,11 +23,21 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool isExpanded = true;
+  final PanelController _panelController = PanelController();
+  double _panelPosition = 0.0;
+  late final Widget _buildSlidingPanelStatic;
 
   List<String> kamus = [
     "assets/images/sibi-logo.png",
     "assets/images/bisindo-logo.png",
   ];
+
+  @override
+  void didChangeDependencies() { //pengganti initState,
+    super.didChangeDependencies(); //buat nungguin contextnya siap
+    _buildSlidingPanelStatic = _createSlidingPanel();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -40,12 +51,26 @@ class _HomePageState extends State<HomePage> {
             height: 450,
           ),
           Positioned(
-            top: 20,
-            left: 25,
-            child: _buildHeader(context),
+            top: MediaQuery.of(context).padding.top + 1,
+            left: 16,
+            right: 16,
+            child: AnimatedOpacity(
+              opacity: _panelPosition < 0.4 ? 1.0 : 0.8, // fade in fade out
+              duration: Duration(milliseconds: 150),
+              child: _buildHeader(context),
+            ),
           ),
-          Positioned(
-            child: _buildSlidingPanel(context),
+          SlidingUpPanel( // pindahin sliding panel kesini
+            controller: _panelController,
+            minHeight: SizeExtension(context).screenHeight * 0.87,
+            maxHeight: SizeExtension(context).screenHeight * 1,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            onPanelSlide: (position) {
+              setState(() {
+                _panelPosition = position;
+              });
+            },
+            panel: _buildSlidingPanelStatic,
           ),
         ],
       ),
@@ -62,7 +87,7 @@ class _HomePageState extends State<HomePage> {
       child: Row(
         children: [
           CircleAvatar(
-            radius: 25,
+            radius: SizeExtension(context).percentHeight(2.8),
             backgroundImage: user.profilePic.isEmpty
                 ? const AssetImage("assets/images/profile.png")
                 : FileImage(File(user.profilePic)) as ImageProvider,
@@ -72,7 +97,7 @@ class _HomePageState extends State<HomePage> {
           Text(
             user.username,
             style: TextStyle(
-              fontSize: 30,
+              fontSize: 22,
               fontWeight: FontWeight.w600,
               color: whiteColor,
             ),
@@ -82,15 +107,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSlidingPanel(BuildContext context) {
-    return SlidingUpPanel(
-      minHeight: MediaQuery.of(context).size.height * 0.8,
-      maxHeight: MediaQuery.of(context).size.height * 0.8,
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(24.0),
-        topRight: Radius.circular(24.0),
-      ),
-      panel: Container(
+  Widget _createSlidingPanel() {
+    return Container(
         clipBehavior: Clip.antiAlias,  //biar gak nimpa
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -114,8 +132,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildRecentChat(BuildContext context) {
@@ -140,7 +157,7 @@ class _HomePageState extends State<HomePage> {
                       "Recent Chat",
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        fontSize: 30,
+                        fontSize: 22,
                       ),
                     ),
                   ),
@@ -165,7 +182,7 @@ class _HomePageState extends State<HomePage> {
                 "Recent Chat",
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
-                  fontSize: 30,
+                  fontSize: 22,
                 ),
               ),
             ),
@@ -223,12 +240,14 @@ class _HomePageState extends State<HomePage> {
             "Bahasa Isyarat",
             style: TextStyle(
               fontWeight: FontWeight.w800,
-              fontSize: 30,
+              fontSize: 22,
             ),
           ),
         ),
-        Row(
+        Flex(
           mainAxisAlignment: MainAxisAlignment.center,
+          direction: Axis.horizontal,
+          spacing: 20,
           children: [
             InkWell(
               onTap: () {
@@ -242,11 +261,10 @@ class _HomePageState extends State<HomePage> {
               child: Image.asset(
                 "assets/images/sibi-logo.png",
                 fit: BoxFit.contain,
-                width: 100,
-                height: 100,
+                width: 80,
+                height: 80,
               ),
             ),
-            const SizedBox(width: 50),
             InkWell(
               onTap: () {
                 Navigator.pushReplacement(
@@ -259,8 +277,8 @@ class _HomePageState extends State<HomePage> {
               child: Image.asset(
                 "assets/images/bisindo-logo.png",
                 fit: BoxFit.contain,
-                width: 100,
-                height: 100,
+                width: 80,
+                height: 80,
               ),
             ),
           ],
@@ -270,6 +288,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildTrending(BuildContext context) {
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -279,12 +298,12 @@ class _HomePageState extends State<HomePage> {
             "New Trending!",
             style: TextStyle(
               fontWeight: FontWeight.w800,
-              fontSize: 30,
+              fontSize: 22,
             ),
           ),
         ),
         SizedBox(
-          height: 120,
+          height: SizeExtension(context).screenHeight * 0.2,
           child: FutureBuilder<List<BlogModel>>(
             future: BlogService().getBlogs(),
             builder: (context, snapshot) {
@@ -294,87 +313,80 @@ class _HomePageState extends State<HomePage> {
               if (snapshot.hasError) {
                 return Center(child: Text("Error: ${snapshot.error}"));
               }
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              final blogs = snapshot.data;
+              if (blogs == null || blogs.isEmpty) {
                 return const Center(child: Text("Belum ada blog tersedia"));
               }
 
-              final List<BlogModel> blogs = snapshot.data!;
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: blogs.length,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemBuilder: (context, index) {
                   final blog = blogs[index];
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    padding: const EdgeInsets.only(right: 12),
                     child: Stack(
-                      clipBehavior: Clip.none,
                       children: [
                         Container(
+                          width:  SizeExtension(context).screenWidth * 0.4,
+                          height:  SizeExtension(context).screenHeight * 0.2,
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                blurRadius: 10,
-                                spreadRadius: 2,
-                                offset: const Offset(0, 3),
+                                color: Colors.black26,
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
-                          child: Container(
-                            width: MediaQuery.of(context).size.width * 0.956,
-                            margin: const EdgeInsets.symmetric(horizontal: 5),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: Image.network(
-                                blog.image,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: double.infinity,
-                              ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.network(
+                              blog.image,
+                              fit: BoxFit.cover,
+                              width:  SizeExtension(context).screenWidth * 0.4,
+                              height:  SizeExtension(context).screenHeight * 0.2,
                             ),
                           ),
                         ),
                         Positioned(
-                            bottom: 40,
-                            left: 20,
-                            child: SizedBox(
-                              width: 220,
-                              child: Text(
-                                blog.title,
-                                style: TextStyle(
-                                    color: whiteColor,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 20
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                            )
+                          bottom: 36,
+                          left: 12,
+                          right: 12,
+                          child: Text(
+                            blog.title,
+                            style: TextStyle(
+                              color: whiteColor,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                         ),
                         Positioned(
-                            bottom: 20,
-                            left: 20,
-                            child: SizedBox(
-                              width: 220,
-                              child: Text(
-                                blog.content,
-                                style: TextStyle(
-                                    color: whiteColor,
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 15
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
-                              ),
-                            )
+                          bottom: 12,
+                          left: 12,
+                          right: 12,
+                          child: Text(
+                            blog.content,
+                            style: TextStyle(
+                              color: whiteColor,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 12,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                          ),
                         ),
                         Positioned(
-                          top: 0,
-                          right: 0,
+                          top: 8,
+                          right: 8,
                           child: Container(
-                            width: 12,
-                            height: 12,
+                            width: 10,
+                            height: 10,
                             decoration: const BoxDecoration(
                               color: Colors.red,
                               shape: BoxShape.circle,
