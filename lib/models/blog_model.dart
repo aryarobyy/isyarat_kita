@@ -36,10 +36,14 @@ class BlogModel {
     final String image = data['image'] ?? '';
     final String title = data['title'] ?? '';
     final String content = data['content'] ?? '';
-    final String typeString = data['type'] ?? '';
+    final String typeString = (data['type'] ?? '').toString().trim().toUpperCase();
+
     final Type type = Type.values.firstWhere(
-          (e) => e.toString().split('.').last.toUpperCase() == typeString.toUpperCase(),
-      orElse: () => Type.ARTICLE,
+          (e) => e.name.toUpperCase() == typeString,
+      orElse: () {
+        print("Unknown type from API: $typeString");
+        return Type.ARTICLE; // fallback
+      },
     );
     final String createdBy = data['createdBy'] ?? '';
     final DateTime createdAt = DateTime.parse(data['createdAt']);

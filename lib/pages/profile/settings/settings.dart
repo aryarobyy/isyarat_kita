@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:isyarat_kita/component/color.dart';
+import 'package:isyarat_kita/util/color.dart';
+import 'package:isyarat_kita/component/popup.dart';
+import 'package:isyarat_kita/component/popup_2.dart';
 import 'package:isyarat_kita/component/text.dart';
 import 'package:isyarat_kita/models/user_model.dart';
+import 'package:isyarat_kita/pages/auth/auth.dart';
 import 'package:isyarat_kita/pages/dashboard.dart';
+import 'package:isyarat_kita/pages/profile/profile.dart';
+import 'package:isyarat_kita/sevices/user_service.dart';
 import 'package:isyarat_kita/widget/header.dart';
 import 'package:isyarat_kita/widget/switch_tile.dart';
 
@@ -36,16 +41,16 @@ class _SettingsState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
+    final _widgetOption = [
+      Account(userData: widget.userData,),
+      Notif(),
+      Privacy(),
+      Support(),
+    ];
+
     return Scaffold(
       backgroundColor: primaryColor,
       body:  _widgetOption[_currentIndex],
     );
   }
-
-  final _widgetOption = [
-    Account(),
-    Notif(),
-    Privacy(),
-    Support(),
-  ];
 }
