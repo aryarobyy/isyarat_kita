@@ -1,7 +1,9 @@
-import 'dart:io';
-
+// import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:isyarat_kita/component/searchbar.dart';
+import 'package:isyarat_kita/component/text.dart';
+import 'package:isyarat_kita/models/userRoom_model.dart';
+import 'package:isyarat_kita/sevices/userRoom_service.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:chat_bubbles/bubbles/bubble_special_three.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
@@ -9,21 +11,14 @@ import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:isyarat_kita/models/chat_model.dart';
 import 'package:isyarat_kita/sevices/chat_socket.dart';
 import 'package:isyarat_kita/sevices/user_service.dart';
-import 'package:isyarat_kita/component/button.dart';
-import 'package:isyarat_kita/component/text_field.dart';
 import 'package:isyarat_kita/pages/dashboard.dart';
-import 'package:isyarat_kita/sevices/images_service.dart';
-import 'package:isyarat_kita/widget/header.dart';
-import 'package:isyarat_kita/widget/snackbar.dart';
-import 'package:isyarat_kita/component/color.dart';
+import 'package:isyarat_kita/util/color.dart';
 import 'package:isyarat_kita/models/room_model.dart';
 import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/sevices/room_service.dart';
 import 'package:isyarat_kita/widget/room_tile.dart';
 
-
 part 'chat.dart';
-part 'create_room.dart';
 part 'community_detail.dart';
 
 class Community extends StatefulWidget {
@@ -59,16 +54,17 @@ class _CommunityState extends State<Community> {
           _buildHeader(context),
           Expanded(
             child: Container(
-                padding: EdgeInsets.only(top: 20, left: 10),
-                decoration: BoxDecoration(
-                  color: whiteColor,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(50),
-                    topRight: Radius.circular(50),
-                  ),
+              margin: EdgeInsets.only(top: 20),
+              padding: EdgeInsets.only(top: 20, left: 10),
+              decoration: BoxDecoration(
+                color: whiteColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(50),
+                  topRight: Radius.circular(50),
                 ),
-                child: _searchQuery.isEmpty ?
-                _buildRoomDisplay(context) : _buildSearchRoom(context)
+              ),
+              child: _searchQuery.isEmpty ?
+              _buildRoomDisplay(context) : _buildSearchRoom(context)
             ),
           ),
         ],
@@ -78,6 +74,7 @@ class _CommunityState extends State<Community> {
 
   Widget _buildHeader(BuildContext context) {
     return Container(
+      padding: EdgeInsets.only(top: 25),
       color: primaryColor,
       child: SafeArea(
         child: Padding(
@@ -91,33 +88,17 @@ class _CommunityState extends State<Community> {
                       child: Text(
                         "Komunitas",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: whiteColor,
                         ),
                       ),
                     ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                CreateRoom(
-                                  userData: widget.userData,
-                                ),
-                            ),
-                          );
-                        },
-                        icon: Icon(Icons.person_add_alt_1),
-                      ),
-                    ),
+
                   ],
                 )
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               Column(
                 children: [
                   MySearchBar(
@@ -139,7 +120,7 @@ class _CommunityState extends State<Community> {
                       });
                     },
                   ),
-                  SizedBox(height: 20,),
+                  SizedBox(height: 30,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -153,7 +134,7 @@ class _CommunityState extends State<Community> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 20),
+                      const SizedBox(width: 40),
                       GestureDetector(
                         onTap: () {
                           // TODO: aksi ketika tab "Belum Dibaca" ditekan
@@ -218,22 +199,24 @@ class _CommunityState extends State<Community> {
 
         final List<RoomModel> rooms = snapshot.data!;
 
-        return ListView.builder(
-          padding: EdgeInsets.zero,
-          itemCount: rooms.length,
-          itemBuilder: (context, index) {
-            final room = rooms[index];
-            return RoomTile(
-              roomId: room.roomId,
-              onChatTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ChatPage(roomId: room.roomId)));
-              },
-              onProfileTap: () {},
-            );
-          },
+        return Expanded(
+          child: ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: rooms.length,
+            itemBuilder: (context, index) {
+              final room = rooms[index];
+              return RoomTile(
+                roomId: room.roomId,
+                onChatTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ChatPage(roomId: room.roomId)));
+                },
+                onProfileTap: () {},
+              );
+            },
+          ),
         );
       },
     );

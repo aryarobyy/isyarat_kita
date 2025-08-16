@@ -44,13 +44,13 @@ class _CommunityDetailState extends State<CommunityDetail> {
               backgroundImage: widget.roomData.image.isNotEmpty
                   ? NetworkImage(widget.roomData.image)
                   : const AssetImage("assets/images/profile.png") as ImageProvider,
-              radius: 120,
+              radius: 70,
             ),
             const SizedBox(height: 20),
             Text(
               widget.roomData.title,
               style: TextStyle(
-                fontSize: 32,
+                fontSize: 22,
                 color: whiteColor,
                 fontWeight: FontWeight.w400,
               ),
@@ -59,7 +59,7 @@ class _CommunityDetailState extends State<CommunityDetail> {
             Text(
               widget.roomData.description,
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 16,
                 color: whiteColor,
               ),
             ),
@@ -71,7 +71,7 @@ class _CommunityDetailState extends State<CommunityDetail> {
                   child: Text(
                     "Media dan dokumen",
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       color: whiteColor,
                     ),
                   ),
@@ -120,7 +120,7 @@ class _CommunityDetailState extends State<CommunityDetail> {
                   child: Text(
                     "Total anggota",
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       color: whiteColor,
                     ),
                   ),
@@ -151,12 +151,11 @@ class _CommunityDetailState extends State<CommunityDetail> {
                           backgroundColor: Colors.grey.shade200,
                           backgroundImage: const AssetImage("assets/images/profile.png"),
                         ),
-                        title: const Text(
+                        title:
+                        MyText(
                           "Ilham",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
                       ),
                     ),
