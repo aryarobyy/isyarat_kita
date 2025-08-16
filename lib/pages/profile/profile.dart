@@ -3,9 +3,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:isyarat_kita/component/color.dart';
+import 'package:isyarat_kita/util/color.dart';
 import 'package:isyarat_kita/component/text.dart';
 import 'package:isyarat_kita/component/text_field_2.dart';
+import 'package:isyarat_kita/pages/admin/admin.dart';
 import 'package:isyarat_kita/pages/auth/auth.dart';
 import 'package:isyarat_kita/pages/dashboard.dart';
 import 'package:isyarat_kita/pages/profile/settings/settings.dart';
@@ -204,7 +205,13 @@ class _ProfilePageState extends State<ProfilePage> {
     {
       "icons": Icons.output,
       "content": "Log Out",
-    }
+    },
+    if (widget.userData?.role == Role.ADMIN)
+      {
+        "icons": Icons.admin_panel_settings,
+        "content": "Admin",
+        "tapped": AdminSite(userData: widget.userData!,),
+      },
   ];
 
   void _showLanguagePopup() {

@@ -82,28 +82,25 @@ class _HomePageState extends State<HomePage> {
     if (user == null) {
       return const Center(child: CircularProgressIndicator());
     }
-
-    return SafeArea(
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: SizeExtension(context).percentHeight(2.8),
-            backgroundImage: user.profilePic.isEmpty
-                ? const AssetImage("assets/images/profile.png")
-                : FileImage(File(user.profilePic)) as ImageProvider,
-            onBackgroundImageError: (exception, stackTrace) {},
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: SizeExtension(context).percentHeight(2.8),
+          backgroundImage: user.profilePic.isEmpty
+              ? const AssetImage("assets/images/profile.png")
+              : FileImage(File(user.profilePic)) as ImageProvider,
+          onBackgroundImageError: (exception, stackTrace) {},
+        ),
+        const SizedBox(width: 8),
+        Text(
+          user.username,
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            color: whiteColor,
           ),
-          const SizedBox(width: 8),
-          Text(
-            user.username,
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w600,
-              color: whiteColor,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

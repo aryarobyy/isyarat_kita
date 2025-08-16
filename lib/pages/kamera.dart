@@ -1,10 +1,17 @@
+import 'dart:io';
+import 'dart:math' as math;
+
 import 'package:camera/camera.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:isyarat_kita/util/color.dart';
+import 'package:isyarat_kita/component/text.dart';
+import 'package:isyarat_kita/widget/card.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class KameraPage extends StatefulWidget {
-  const KameraPage({super.key});
+  const KameraPage({Key? key}) : super(key: key);
 
   @override
   State<KameraPage> createState() => _KameraPageState();
@@ -13,11 +20,18 @@ class KameraPage extends StatefulWidget {
 class _KameraPageState extends State<KameraPage> {
   List<CameraDescription> cameras = [];
   CameraController? controller;
+  bool isAndroidBelow10 = false;
 
   @override
   void initState() {
     super.initState();
     _initializeCamera();
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
   }
 
   Future<void> _initializeCamera() async {
@@ -37,6 +51,14 @@ class _KameraPageState extends State<KameraPage> {
         ),
       );
       return;
+    }
+
+    if (Platform.isAndroid) {
+      final deviceInfo = DeviceInfoPlugin();
+      final androidInfo = await deviceInfo.androidInfo;
+      if (androidInfo.version.sdkInt < 29) {
+        isAndroidBelow10 = true;
+      }
     }
 
     List<CameraDescription> _cameras = await availableCameras();
@@ -77,15 +99,57 @@ class _KameraPageState extends State<KameraPage> {
   }
 
   Widget _buildCameraView() {
-    if (controller == null || controller?.value.isInitialized == false) {
-      return const Center(
-        child: CircularProgressIndicator(),
+    final mediaQuery = MediaQuery.of(context);
+    if (controller == null || controller!.value.isInitialized == false) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    Widget cameraPreview = CameraPreview(controller!);
+
+    if (Platform.isAndroid) {
+      if (!isAndroidBelow10) {
+        cameraPreview = RotatedBox(
+          quarterTurns: 1,
+          child: cameraPreview,
+        );
+      }
+    } else {
+      cameraPreview = RotatedBox(
+        quarterTurns: 1,
+        child: cameraPreview,
       );
     }
+
     return SafeArea(
-      child: RotatedBox(
-        quarterTurns: 1,
-        child: SizedBox.expand(child: CameraPreview(controller!)),
+      child: Column(
+        children: [
+          Container(
+            height: mediaQuery.size.height * 0.75,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.black,
+            ),
+            child: Center(
+              child: ClipRect(
+                child: OverflowBox(
+                  maxWidth: double.infinity,
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: cameraPreview,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: MyCard(
+              title: "Hasil: ",
+              subtitle: "A",
+              color: primaryColor,
+              textColor: Colors.white,
+            ),
+          )
+        ],
       ),
     );
   }
