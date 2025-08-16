@@ -19,7 +19,7 @@ class _ChatPageState extends State<ChatPage> {
   UserModel? _currentUser;
   List<UserRoomModel>? _members;
 
-  final Map<String, UserModel> _userCache = {};
+  final Map<String, UserModel> _userCache = {}; //User data save here to make it not get call in future
 
   @override
   void initState() {
@@ -29,20 +29,20 @@ class _ChatPageState extends State<ChatPage> {
     _socketInitialize();
     _scrollController.addListener(() {});
 
-    AwesomeNotifications().setListeners(
-      onActionReceivedMethod: (ReceivedAction receivedAction) async {
-        if (receivedAction.payload != null) {
-          final roomId = receivedAction.payload?['roomId'];
-          if (roomId != null && context.mounted) {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => ChatPage(
-                roomId: roomId,
-              ),
-            ));
-          }
-        }
-      },
-    );
+    // AwesomeNotifications().setListeners(
+    //   onActionReceivedMethod: (ReceivedAction receivedAction) async {
+    //     if (receivedAction.payload != null) {
+    //       final roomId = receivedAction.payload?['roomId'];
+    //       if (roomId != null && context.mounted) {
+    //         Navigator.of(context).push(MaterialPageRoute(
+    //           builder: (context) => ChatPage(
+    //             roomId: roomId,
+    //           ),
+    //         ));
+    //       }
+    //     }
+    //   },
+    // );
     super.initState();
   }
 
@@ -163,17 +163,17 @@ class _ChatPageState extends State<ChatPage> {
     // }
     _chatController.clear();
 
-
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
-        channelKey: 'Community_channel',
-        title: 'sdssa',
-        body: "sdassad",
-        notificationLayout: NotificationLayout.Default,
-        payload: messageData,
-      )
-    );
+    //
+    // await AwesomeNotifications().createNotification(
+    //   content: NotificationContent(
+    //     id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+    //     channelKey: 'Community_channel',
+    //     title: 'sdssa',
+    //     body: "sdassad",
+    //     notificationLayout: NotificationLayout.Default,
+    //     payload: messageData,
+    //   )
+    // );
 
     // Future.delayed(Duration(milliseconds: 300), () {
     //   _socket.emit("joinRoom", widget.roomId);
@@ -192,9 +192,16 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  Future <void> attachClick() async {
+    try{
+
+    } catch (e) {
+      throw Exception("Failed attach");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    print("Chat data: $_chats");
     return Scaffold(
       appBar: AppBar(
         title: _buildRoomHeader(context),
@@ -356,10 +363,13 @@ class _ChatPageState extends State<ChatPage> {
                   color: whiteColor,
                   size: 24,
                 ),
-                suffixIcon: Icon(
-                  Icons.camera_alt,
+                suffixIcon: IconButton(
+                  onPressed: attachClick,
+                  icon: Icon(
+                    Icons.attach_file,
+                    size: 24,
+                  ),
                   color: whiteColor,
-                  size: 24,
                 ),
               ),
             ),
@@ -412,19 +422,22 @@ class _ChatPageState extends State<ChatPage> {
                     onTap: () {
                       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => DashboardPage(initialTab: 3,)));
                     },
-                    child: Image.asset("assets/images/back-button.png", width: 60,)
+                    child: Image.asset("assets/images/back-button.png", width:30,)
                 ),
-                SizedBox(width: 10,),
+                SizedBox(width: 30,),
                 CircleAvatar(
                   backgroundImage: room.image.isNotEmpty == true
                       ? NetworkImage(room.image)
                       : const AssetImage("assets/images/profile.png") as ImageProvider,
-                  radius: 20,
+                  radius: 15,
                 ),
                 const SizedBox(
-                  width: 20,
+                  width: 15,
                 ),
-                Text(room.title),
+                MyText(
+                  room.title,
+                  color: whiteColor,
+                ),
                 Spacer(),
                 InkWell(
                   onTap: () {},
