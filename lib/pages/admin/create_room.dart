@@ -1,4 +1,16 @@
-part of 'community.dart';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:isyarat_kita/component/button.dart';
+import 'package:isyarat_kita/util/color.dart';
+import 'package:isyarat_kita/component/text_field.dart';
+import 'package:isyarat_kita/models/user_model.dart';
+import 'package:isyarat_kita/pages/dashboard.dart';
+import 'package:isyarat_kita/sevices/images_service.dart';
+import 'package:isyarat_kita/sevices/room_service.dart';
+import 'package:isyarat_kita/widget/header.dart';
+import 'package:isyarat_kita/widget/snackbar.dart';
+
 
 class CreateRoom extends StatefulWidget {
   UserModel? userData;
@@ -53,7 +65,10 @@ class _CreateRoomState extends State<CreateRoom> {
           imageFile: _selectedImage,
           description: _descController.text.trim()
       );
-      // UserRoomService()
+    // final isReady = await RoomService().getRoomByTitle(_titleController.text.trim());
+    // if(isReady.isEmpty){
+    //   return Center(child: CircularProgressIndicator());
+    // }
       Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => DashboardPage(initialTab: 3,)
@@ -153,11 +168,7 @@ class _CreateRoomState extends State<CreateRoom> {
                       textColor: whiteColor,
                       outlineColor: whiteColor,
                     ),
-                    const SizedBox(height: 20,),
-
-
-                    const SizedBox(height: 20),
-
+                    const SizedBox(height: 40,),
                     MyButton(
                       onPressed: _createRoom,
                       text: "Create",

@@ -29,25 +29,25 @@ class _DashboardPageState extends State<DashboardPage> {
   bool isLoggedin = false;
   bool _isLoading = true;
 
-  // late UserModel _dummyUser = userData;
-  // UserModel userData = UserModel( // dummy data
-  //   userId: "3b052129-f4c1-46fb-81cc-e68e2923c187",
-  //   email: "ilhamgod14@gmaill.com",
-  //   profilePic: "",
-  //   bannerPic: "",
-  //   username: "ilhamgodddd",
-  //   name: "",
-  //   bio: "My name bio",
-  //   role: Role.ADMIN,
-  //   createdAt: DateTime(2024, 1, 1),
-  // );
+  late UserModel _dummyUser = userData;
+  UserModel userData = UserModel( // dummy data
+    userId: "3b052129-f4c1-46fb-81cc-e68e2923c187",
+    email: "ilhamgod14@gmaill.com",
+    profilePic: "",
+    bannerPic: "",
+    username: "ilhamgodddd",
+    name: "",
+    bio: "My name bio",
+    role: Role.ADMIN,
+    createdAt: DateTime(2024, 1, 1),
+  );
   
   @override
   void initState()  {
     super.initState();
-    _tokenChecking();
+    // _tokenChecking();
     _currentIndex = widget.initialTab;
-    _getCurrentUser();
+    // _getCurrentUser();
   }
 
   Future<bool> _tokenChecking() async {
@@ -107,15 +107,15 @@ class _DashboardPageState extends State<DashboardPage> {
   }
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
-        body: CircularProgressIndicator(),
-      );
-    }
-
-    if (!isLoggedin) {
-      return Authentication();
-    }
+    // if (_isLoading) {
+    //   return Scaffold(
+    //     body: CircularProgressIndicator(),
+    //   );
+    // }
+    //
+    // if (!isLoggedin) {
+    //   return Authentication();
+    // }
 
     final widgetOptions = [
       HomePage(userData: _userData,),
