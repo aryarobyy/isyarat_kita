@@ -99,6 +99,14 @@ class _AccountState extends State<Account> {
       "content": "Email dan Kata Sandi",
       "subtitle1": "gatau@gmail.com",
       "subtitle2": "*************",
+      "onTapped": () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => UpdateProfile(userData: widget.userData!),
+          ),
+        );
+      }
     },
     {
       "icons": Icons.attach_email_rounded,

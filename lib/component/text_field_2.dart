@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:isyarat_kita/component/color.dart';
+import 'package:isyarat_kita/util/color.dart';
 
 class MyTextField2 extends StatefulWidget {
   final TextEditingController controller;
@@ -59,8 +59,8 @@ class _MyTextField2State extends State<MyTextField2> {
         minLines: widget.minLine,
         obscureText: _obscureText,
         textAlign: TextAlign.start,
-        style: const TextStyle(
-          color: blackColor,
+        style: TextStyle(
+          color: widget.textColor,
           fontSize: 16,
         ),
         decoration: InputDecoration(

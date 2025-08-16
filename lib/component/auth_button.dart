@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:isyarat_kita/component/color.dart';
+import 'package:isyarat_kita/util/color.dart';
 
 class AuthButton extends StatelessWidget {
   final bool isLogin;

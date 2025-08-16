@@ -37,6 +37,4 @@ class MyMiddleware {
     await verifyToken(token);
     return true;
   }
-
-
 }

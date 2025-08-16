@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:isyarat_kita/component/color.dart';
+import 'package:isyarat_kita/util/color.dart';
 
 class MyTextField extends StatefulWidget {
   final TextEditingController controller;
@@ -59,8 +59,8 @@ class _MyTextFieldState extends State<MyTextField> {
           minLines: widget.minLine,
           obscureText: _obscureText,
           textAlign: TextAlign.start,
-          style: const TextStyle(
-            color: blackColor,
+          style: TextStyle(
+            color: widget.textColor,
             fontSize: 16,
           ),
           decoration: InputDecoration(
@@ -86,7 +86,7 @@ class _MyTextFieldState extends State<MyTextField> {
             labelText: widget.name,
             hintText: widget.hintText,
             counterText: "",
-            labelStyle: TextStyle(color: widget.textColor ?? Colors.grey),
+            labelStyle: TextStyle(color: widget.textColor),
             border: OutlineInputBorder(
               borderSide: BorderSide(color: widget.outlineColor ?? blackColor),
               borderRadius: BorderRadius.all(Radius.circular(10)),

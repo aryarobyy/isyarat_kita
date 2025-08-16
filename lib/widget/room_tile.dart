@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:isyarat_kita/models/chat_model.dart';
@@ -49,7 +48,7 @@ class RoomTile extends StatelessWidget {
                 leading: InkWell(
                   onTap: onProfileTap,
                   child: CircleAvatar(
-                    radius: 28,
+                    radius: 24,
                     backgroundColor: Colors.grey.shade200,
                     backgroundImage: room.image.isNotEmpty
                         ? NetworkImage(room.image)
@@ -82,6 +81,7 @@ class RoomTile extends StatelessWidget {
                       );
                     }
                     if (chatSnapshot.hasError) {
+                      print(chatSnapshot.error);
                       return const Text(
                         "Error loading message",
                         style: TextStyle(

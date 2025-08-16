@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:isyarat_kita/component/color.dart'; // Adjust import to your project
+import 'package:isyarat_kita/util/color.dart'; // Adjust import to your project
 
 class MyHeader extends StatelessWidget {
   final String title;

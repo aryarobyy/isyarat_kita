@@ -7,6 +7,7 @@ class MyCard extends StatelessWidget {
   final double width;
   final double height;
   final Color? color;
+  final Color? textColor;
 
   const MyCard({
     Key? key,
@@ -15,13 +16,13 @@ class MyCard extends StatelessWidget {
     this.width = double.infinity,
     this.height = 100,
     this.color,
+    this.textColor
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final bg = color ?? cs.surface;
-    final textColor = cs.onSurface;
 
     return Container(
       width: width,
@@ -45,7 +46,6 @@ class MyCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-
             child: MyText(
               title,
               fontSize: 18,
@@ -57,7 +57,7 @@ class MyCard extends StatelessWidget {
             subtitle,
             fontSize: 14,
             fontWeight: FontWeight.w400,
-            color: textColor.withOpacity(0.8),
+            color: textColor,
           ),
         ],
       ),

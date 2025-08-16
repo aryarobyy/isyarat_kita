@@ -58,23 +58,25 @@ class _SigncodeListState extends State<SigncodeList> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(380, 50),
-                      backgroundColor: primaryColor,
-                    ),
-                    onPressed: () {
-                      // Navigator.pushReplacement(
-                      //   context,
-                      //   MaterialPageRoute(builder: (context) => const Sibi()),
-                      // );
-                    },
-                    child: const Text(
-                      "MULAI",
-                      style: TextStyle(
-                        fontSize: 35,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                  Center(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(320, 60),
+                        backgroundColor: primaryColor,
+                      ),
+                      onPressed: () {
+                        // Navigator.pushReplacement(
+                        //   context,
+                        //   MaterialPageRoute(builder: (context) => const Sibi()),
+                        // );
+                      },
+                      child: const Text(
+                        "MULAI",
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -87,9 +89,6 @@ class _SigncodeListState extends State<SigncodeList> {
                       }
                       if (snapshot.hasError) {
                         return Center(child: Text("Error: ${snapshot.error}"));
-                      }
-                      if (!snapshot.hasData) {
-                        return const Center(child: Text("No vocabs available"));
                       }
                       if (!snapshot.hasData || snapshot.data!.isEmpty) {
                         return Center(
@@ -105,43 +104,59 @@ class _SigncodeListState extends State<SigncodeList> {
                       }
 
                       final List<VocabModel> vocabs = snapshot.data!;
-                      print("Vocab: $vocabs");
                       return Expanded(
                         child: GridView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 4,
-                          mainAxisExtent: 120,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          childAspectRatio: 1,
-                        ),
-                        itemCount: vocabs.length,
-                        itemBuilder: (context, index) {
-                          final vocab = vocabs[index];
-                          return Container(
-                            color: primaryColor.withOpacity(0.2),
-                            child: Column(
-                              children: [
-                                CachedNetworkImage(
-                                  imageUrl: vocab.image,
-                                  height: 75,
-                                  fit: BoxFit.cover,
-                                ),
-                                SizedBox(height: 10),
-                                Text(
-                                  '${vocab.name}',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            mainAxisExtent: 120,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                          ),
+                          itemCount: vocabs.length,
+                          itemBuilder: (context, index) {
+                            final vocab = vocabs[index];
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: primaryColor.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                    flex: 3,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                                      child: CachedNetworkImage(
+                                        imageUrl: vocab.image,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: Center(
+                                        child: Text(
+                                          vocab.name,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                       );
                     }
                   ),
@@ -151,10 +166,10 @@ class _SigncodeListState extends State<SigncodeList> {
           ),
           Positioned(
             top: size.height * 0.14,
-            left: size.width * 0.1,
-            right: size.width * 0.1,
+            left: size.width * 0.15,
+            right: size.width * 0.15,
             child: Container(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(18.0),
               decoration: BoxDecoration(
                 color: whiteColor,
                 borderRadius: BorderRadius.circular(20),
@@ -166,8 +181,8 @@ class _SigncodeListState extends State<SigncodeList> {
                   ),
                 ],
               ),
-              child: const Text(
-                "SIBI",
+              child: Text(
+                widget.type,
                 style: TextStyle(
                   color: blackColor,
                   fontSize: 20,

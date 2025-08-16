@@ -62,7 +62,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
           "username": _user.username,
           "profilePic": _user.profilePic,
           "bannerPic": currUser.bannerPic,
-          "role": _user.role,
+          "role": _user.role.toString(),
         }
       };
 

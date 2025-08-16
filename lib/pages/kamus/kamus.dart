@@ -1,18 +1,12 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:isyarat_kita/component/button.dart';
-import 'package:isyarat_kita/component/color.dart';
-import 'package:isyarat_kita/component/text_field.dart';
+import 'package:isyarat_kita/util/color.dart';
 import 'package:isyarat_kita/models/user_model.dart';
 import 'package:isyarat_kita/models/vocab_model.dart';
-import 'package:isyarat_kita/pages/admin/add_vocab.dart';
 import 'package:isyarat_kita/pages/dashboard.dart';
-import 'package:isyarat_kita/sevices/images_service.dart';
 import 'package:isyarat_kita/sevices/vocab_service.dart';
-import 'package:isyarat_kita/widget/snackbar.dart';
 
 part 'signcode_list.dart';
 
@@ -24,15 +18,16 @@ class KamusPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.only(top: 25),
       color: primaryColor,
       child: SafeArea(
         child: Column(
           children: [
             Center(
               child: Text(
-                "KAMUS BAHASA ISYARAT",
+                "Kamus Bahasa Isyarat",
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: whiteColor,
                 ),
@@ -49,8 +44,6 @@ class KamusPage extends StatelessWidget {
   }
 
   Widget _build(BuildContext context) {
-    final role = userData?.role;
-    print("Role: $role");
     return Container(
       padding: EdgeInsets.only(top: 20, left: 10),
       decoration: BoxDecoration(
@@ -70,14 +63,17 @@ class KamusPage extends StatelessWidget {
                       margin: EdgeInsets.all(20),
                       child: Row(
                         children: [
-                          Image.asset("assets/images/sibi-logo.png"),
+                          Image.asset(
+                            "assets/images/sibi-logo.png",
+                            width: 80,
+                          ),
                           SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               "(Sistem Isyarat Bahasa Indonesia) adalah sistem bahasa isyarat yang dikembangkan untuk komunikasi dengan penyandang tunarungu di Indonesia. ",
                               textAlign: TextAlign.justify,
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
                               softWrap: true,
@@ -89,7 +85,7 @@ class KamusPage extends StatelessWidget {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        minimumSize: Size(380, 40),
+                        minimumSize: Size(320, 40),
                         backgroundColor: primaryColor
                       ),
                       onPressed: () {
@@ -101,7 +97,7 @@ class KamusPage extends StatelessWidget {
                       child: Text(
                         "Selengkapnya",
                         style: TextStyle(
-                          fontSize: 25,
+                          fontSize: 18,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
                         ),
@@ -112,7 +108,7 @@ class KamusPage extends StatelessWidget {
                 SizedBox(height: 40),
                 Divider(
                   color: primaryColor,
-                  thickness: 8,
+                  thickness: 3,
                 ),
                 SizedBox(height: 20),
                 Column(
@@ -121,14 +117,17 @@ class KamusPage extends StatelessWidget {
                       margin: EdgeInsets.all(20),
                       child: Row(
                         children: [
-                          Image.asset("assets/images/bisindo-logo.png"),
+                          Image.asset(
+                              "assets/images/bisindo-logo.png",
+                              width: 80,
+                          ),
                           SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               "(Bahasa Isyarat Indonesia) adalah bahasa isyarat yang berkembang secara alami di komunitas tunarungu Indonesia.",
                               textAlign: TextAlign.justify,
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
                               softWrap: true,
@@ -140,7 +139,7 @@ class KamusPage extends StatelessWidget {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        minimumSize: Size(380, 40),
+                        minimumSize: Size(320, 40),
                         backgroundColor: primaryColor
                       ),
                       onPressed: () {
@@ -152,7 +151,7 @@ class KamusPage extends StatelessWidget {
                       child: Text(
                         "Selengkapnya",
                         style: TextStyle(
-                          fontSize: 25,
+                          fontSize: 18,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
                         ),

@@ -107,7 +107,7 @@ class VocabService{
       if (res.statusCode == 200) {
         List<dynamic> data = response['data'];
         print("Datas: $data");
-        List<VocabModel> vocabs = data.map((room) => VocabModel.fromMap(room)).toList();
+        List<VocabModel> vocabs = data.map((vocab) => VocabModel.fromMap(vocab)).toList();
         print("Vocabs: $vocabs");
         return vocabs;
       } else if (res.statusCode == 400) {
